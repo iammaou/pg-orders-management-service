@@ -1,0 +1,77 @@
+{
+  "format": 1,
+  "restore": {
+    "/run/media/maou/Files & Software/Code/pg-orders-management-service/WebAPI/WebAPI.csproj": {}
+  },
+  "projects": {
+    "/run/media/maou/Files & Software/Code/pg-orders-management-service/WebAPI/WebAPI.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/run/media/maou/Files & Software/Code/pg-orders-management-service/WebAPI/WebAPI.csproj",
+        "projectName": "WebAPI",
+        "projectPath": "/run/media/maou/Files & Software/Code/pg-orders-management-service/WebAPI/WebAPI.csproj",
+        "packagesPath": "/home/maou/.nuget/packages/",
+        "outputPath": "/run/media/maou/Files & Software/Code/pg-orders-management-service/WebAPI/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/maou/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "/usr/lib64/dotnet/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.100"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "Microsoft.AspNetCore.OpenApi": {
+              "target": "Package",
+              "version": "[9.0.19, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/9.0.120/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

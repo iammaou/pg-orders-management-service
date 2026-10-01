@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "yR+N03AA8+o=",
+  "success": true,
+  "projectFilePath": "/run/media/maou/Files & Software/Code/pg-orders-management-service/WebAPI/WebAPI.csproj",
+  "expectedPackageFiles": [
+    "/home/maou/.nuget/packages/microsoft.aspnetcore.openapi/9.0.19/microsoft.aspnetcore.openapi.9.0.19.nupkg.sha512",
+    "/home/maou/.nuget/packages/microsoft.openapi/1.6.17/microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}
