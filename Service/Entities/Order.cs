@@ -12,7 +12,6 @@ public enum OrderStatus
 public class Order
 {
     public Guid Id {get;set;}
-
     public required string Name {get;set;}
     public List<OrderQuantityGroup> QuantityGroups {get;set;} = new();
     public DateTime CreatedAt {get;set;}

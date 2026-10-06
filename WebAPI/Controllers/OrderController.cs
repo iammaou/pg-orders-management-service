@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Service.DTO;
 using Service.Entities;
 using Service.Services;
 
@@ -10,10 +11,26 @@ namespace WebAPI.Controllers
     public class OrderController(IOrderService orderService) : ControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<List<Order>>> GetAll()
+        public async Task<ActionResult<List<OrderDto>>> GetAll()
         {
-            var orders = await orderService.GetAllOrdersAsync();
+            List<OrderDto> orders = await orderService.GetAllOrdersAsync();
             return Ok(orders);
+        }
+
+        [HttpGet("id:guid")]
+        public async Task<ActionResult<OrderDto>> getOrder(Guid id)
+        {
+            var order = await orderService.GetOrderAsync(id);
+
+            return order == null ? NotFound() : Ok(order);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<OrderDto>> CreateNew(CreateOrderDto order)
+        {
+            var newOrder = await orderService.CreateNewOrderAsync(order);
+
+            return CreatedAtAction(nameof(newOrder), new {id = newOrder.Id}, newOrder);
         }
     }
 }
