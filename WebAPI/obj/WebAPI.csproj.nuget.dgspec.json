@@ -4,14 +4,14 @@
     "/run/media/maou/Files & Software/Code/pg-orders-management-service/WebAPI/WebAPI.csproj": {}
   },
   "projects": {
-    "/run/media/maou/Files & Software/Code/pg-orders-management-service/WebAPI/WebAPI.csproj": {
+    "/run/media/maou/Files & Software/Code/pg-orders-management-service/Service/Service.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/run/media/maou/Files & Software/Code/pg-orders-management-service/WebAPI/WebAPI.csproj",
-        "projectName": "WebAPI",
-        "projectPath": "/run/media/maou/Files & Software/Code/pg-orders-management-service/WebAPI/WebAPI.csproj",
+        "projectUniqueName": "/run/media/maou/Files & Software/Code/pg-orders-management-service/Service/Service.csproj",
+        "projectName": "Service",
+        "projectPath": "/run/media/maou/Files & Software/Code/pg-orders-management-service/Service/Service.csproj",
         "packagesPath": "/home/maou/.nuget/packages/",
-        "outputPath": "/run/media/maou/Files & Software/Code/pg-orders-management-service/WebAPI/obj/",
+        "outputPath": "/run/media/maou/Files & Software/Code/pg-orders-management-service/Service/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/maou/.nuget/NuGet/NuGet.Config"
@@ -45,9 +45,107 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "DotNetEnv": {
+              "target": "Package",
+              "version": "[3.2.0, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/9.0.120/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/run/media/maou/Files & Software/Code/pg-orders-management-service/WebAPI/WebAPI.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/run/media/maou/Files & Software/Code/pg-orders-management-service/WebAPI/WebAPI.csproj",
+        "projectName": "WebAPI",
+        "projectPath": "/run/media/maou/Files & Software/Code/pg-orders-management-service/WebAPI/WebAPI.csproj",
+        "packagesPath": "/home/maou/.nuget/packages/",
+        "outputPath": "/run/media/maou/Files & Software/Code/pg-orders-management-service/WebAPI/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/maou/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "/usr/lib64/dotnet/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "/run/media/maou/Files & Software/Code/pg-orders-management-service/Service/Service.csproj": {
+                "projectPath": "/run/media/maou/Files & Software/Code/pg-orders-management-service/Service/Service.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.100"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "DotNetEnv": {
+              "target": "Package",
+              "version": "[3.2.0, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[9.0.19, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "target": "Package",
+              "version": "[9.0.0, )"
             }
           },
           "imports": [
