@@ -11,7 +11,7 @@ namespace WebAPI.Controllers
     public class OrderController(IOrderService orderService) : ControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<List<OrderDto>>> GetAll()
+        public async Task<ActionResult<List<OrderDto>>> GetAllOrders()
         {
             List<OrderDto> orders = await orderService.GetAllOrdersAsync();
             return Ok(orders);
@@ -26,11 +26,19 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<OrderDto>> CreateNew(CreateOrderDto order)
+        public async Task<ActionResult<OrderDto>> CreateNewOrder(CreateOrderDto order)
         {
             var newOrder = await orderService.CreateNewOrderAsync(order);
 
             return CreatedAtAction(nameof(getOrder), new {id = newOrder.Id}, newOrder);
+        }
+
+        [HttpDelete("id:guid")]
+        public async Task<ActionResult> DeleteOrder(Guid id)
+        {
+            var delete = await orderService.DeleteOrderAsync(id);
+
+            return delete == false ? NotFound() : NoContent();
         }
     }
 }

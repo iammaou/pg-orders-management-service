@@ -11,6 +11,7 @@ public interface IOrderService
     Task<List<OrderDto>> GetAllOrdersAsync();
     Task<OrderDto?> GetOrderAsync(Guid id);
     Task<OrderDto> CreateNewOrderAsync(CreateOrderDto order);
+    Task<bool> DeleteOrderAsync(Guid id);
 }
 
 public class OrderService(ApplicationDbContext dbContext) : IOrderService
@@ -46,5 +47,21 @@ public class OrderService(ApplicationDbContext dbContext) : IOrderService
         await dbContext.SaveChangesAsync();
 
         return newOrder.ToDto();
+    }
+
+    public async Task<bool> DeleteOrderAsync(Guid id)
+    {
+        var order = await dbContext.Orders
+            .AsNoTracking()
+            .Include(order => order.QuantityGroups)
+                .ThenInclude(group => group.Quantities)
+            .FirstOrDefaultAsync(order => order.Id == id);
+        
+        if (order == null) return false;
+
+        dbContext.Remove(order);
+        await dbContext.SaveChangesAsync();
+
+        return true;
     }
 }
