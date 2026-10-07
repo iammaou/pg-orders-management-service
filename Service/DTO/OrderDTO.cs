@@ -6,9 +6,7 @@ namespace Service.DTO;
 public class OrderDto
 {
     public Guid Id { get; set; }
-
     public string Name { get; set; } = string.Empty;
-
     public List<OrderQuantityGroupDto> QuantityGroups { get; set; } = new();
     public DateTime CreatedAt { get; set; }
     public DateTime Deadline { get; set; }
