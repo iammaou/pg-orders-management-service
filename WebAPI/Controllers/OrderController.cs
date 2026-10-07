@@ -30,7 +30,7 @@ namespace WebAPI.Controllers
         {
             var newOrder = await orderService.CreateNewOrderAsync(order);
 
-            return CreatedAtAction(nameof(newOrder), new {id = newOrder.Id}, newOrder);
+            return CreatedAtAction(nameof(getOrder), new {id = newOrder.Id}, newOrder);
         }
     }
 }
