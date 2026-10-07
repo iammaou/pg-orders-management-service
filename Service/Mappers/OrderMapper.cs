@@ -73,7 +73,7 @@ public static class OrderMapper
         };
     }
 
-    public static Order ToEntity(this CreateOrderDto dto) => new()
+    public static Order ToEntity(this CreateOrderDTO dto) => new()
     {
         Id = Guid.NewGuid(),
         Name = dto.Name,

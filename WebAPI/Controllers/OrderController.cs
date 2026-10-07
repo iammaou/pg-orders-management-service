@@ -26,7 +26,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<OrderDto>> CreateNewOrder(CreateOrderDto order)
+        public async Task<ActionResult<OrderDto>> CreateNewOrder(CreateOrderDTO order)
         {
             var newOrder = await orderService.CreateNewOrderAsync(order);
 

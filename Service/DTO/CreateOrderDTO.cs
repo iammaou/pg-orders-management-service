@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Service.DTO;
 
-public class CreateOrderDto : IValidatableObject
+public class CreateOrderDTO : IValidatableObject
 {
     [Required]
     [StringLength(200, MinimumLength = 1)]

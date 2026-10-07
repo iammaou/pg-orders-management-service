@@ -10,8 +10,9 @@ public interface IOrderService
 {
     Task<List<OrderDto>> GetAllOrdersAsync();
     Task<OrderDto?> GetOrderAsync(Guid id);
-    Task<OrderDto> CreateNewOrderAsync(CreateOrderDto order);
+    Task<OrderDto> CreateNewOrderAsync(CreateOrderDTO order);
     Task<bool> DeleteOrderAsync(Guid id);
+    // Task<OrderDto?> UpdateOrderAsync(Guid id, UpdateOrderDTO order);
 }
 
 public class OrderService(ApplicationDbContext dbContext) : IOrderService
@@ -39,7 +40,7 @@ public class OrderService(ApplicationDbContext dbContext) : IOrderService
         return order == null ? null : order.ToDto();
     }
 
-    public async Task<OrderDto> CreateNewOrderAsync(CreateOrderDto order)
+    public async Task<OrderDto> CreateNewOrderAsync(CreateOrderDTO order)
     {
         Order newOrder = order.ToEntity();
 
@@ -64,4 +65,9 @@ public class OrderService(ApplicationDbContext dbContext) : IOrderService
 
         return true;
     }
+
+    // public async Task<OrderDto?> UpdateOrderAsync(Guid id, UpdateOrderDTO order)
+    // {
+        
+    // }
 }
