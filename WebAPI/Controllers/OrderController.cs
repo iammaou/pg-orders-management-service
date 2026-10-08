@@ -18,7 +18,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet("id:guid")]
-        public async Task<ActionResult<OrderDto>> getOrder(Guid id)
+        public async Task<ActionResult<OrderDto>> GetOrder(Guid id)
         {
             var order = await orderService.GetOrderAsync(id);
 
@@ -30,7 +30,7 @@ namespace WebAPI.Controllers
         {
             var newOrder = await orderService.CreateNewOrderAsync(order);
 
-            return CreatedAtAction(nameof(getOrder), new {id = newOrder.Id}, newOrder);
+            return CreatedAtAction(nameof(GetOrder), new {id = newOrder.Id}, newOrder);
         }
 
         [HttpDelete("id:guid")]
@@ -39,6 +39,14 @@ namespace WebAPI.Controllers
             var delete = await orderService.DeleteOrderAsync(id);
 
             return delete == false ? NotFound() : NoContent();
+        }
+
+        [HttpPut("id:guid")]
+        public async Task<ActionResult<OrderDto>> UpdateOrder(Guid id, UpdateOrderDTO order)
+        {
+            var newOrder = await orderService.UpdateOrderAsync(id, order);
+
+            return newOrder == null ? NotFound() : Ok(newOrder);
         }
     }
 }
