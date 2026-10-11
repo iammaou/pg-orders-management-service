@@ -11,7 +11,7 @@ public class OrderQueryParameters
     [Range(1, 100, ErrorMessage = "Page size must be between 1 and 100")]
     public int PageSize {get;set;} = 10;
 
-    public OrderStatus Status {get;set;}
+    public OrderStatus? Status {get;set;}
     public bool IsDescending {get;set;}
 
     private string? _sortBy;

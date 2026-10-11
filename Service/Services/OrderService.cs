@@ -8,7 +8,7 @@ namespace Service.Services;
 
 public interface IOrderService
 {
-    Task<List<OrderDto>> GetAllOrdersAsync();
+    Task<PagedResult<OrderDto>> GetAllOrdersAsync(OrderQueryParameters query);
     Task<OrderDto?> GetOrderAsync(Guid id);
     Task<OrderDto> CreateNewOrderAsync(CreateOrderDTO order);
     Task<bool> DeleteOrderAsync(Guid id);
@@ -18,17 +18,41 @@ public interface IOrderService
 public class OrderService(ApplicationDbContext dbContext) : IOrderService
 {
 
-    public async Task<List<OrderDto>> GetAllOrdersAsync()
+    public async Task<PagedResult<OrderDto>> GetAllOrdersAsync(OrderQueryParameters query)
     {
-        var orders = await dbContext.Orders
-            .AsNoTracking()
-            .Include(order => order.QuantityGroups)
-                .ThenInclude(group => group.Quantities)
+        IQueryable<Order> ordersQuery = dbContext.Orders.AsNoTracking().Include(order => order.QuantityGroups)
+                .ThenInclude(group => group.Quantities);
+
+        if (query.Status.HasValue)
+        {
+            ordersQuery = ordersQuery.Where(p => p.Status == query.Status.Value);
+        }
+
+        ordersQuery = query.SortBy?.ToLower() switch
+        {
+            "deadline" => query.IsDescending ? ordersQuery.OrderByDescending(o => o.Deadline).ThenBy(o => o.Id) : ordersQuery.OrderBy(o => o.Deadline).ThenBy(o => o.Id),
+            "createdat" => query.IsDescending ? ordersQuery.OrderByDescending(o => o.CreatedAt).ThenBy(o => o.Id) : ordersQuery.OrderBy(o => o.CreatedAt).ThenBy(o => o.Id),
+            _ => query.IsDescending? ordersQuery.OrderByDescending(o => o.Id) : ordersQuery.OrderBy(o => o.Id)
+        };
+
+        var totalCount = await ordersQuery.CountAsync();
+
+        var page = Math.Max(query.Page, 1);
+        var pageSize = Math.Clamp(query.PageSize, 1, 100);
+
+        var items = await ordersQuery
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(o => o.ToDto())
             .ToListAsync();
 
-        
-
-        return orders.Select(order => order.ToDto()).ToList();
+        return new PagedResult<OrderDto>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
+        };
     }
 
     public async Task<OrderDto?> GetOrderAsync(Guid id)

@@ -11,9 +11,9 @@ namespace WebAPI.Controllers
     public class OrderController(IOrderService orderService) : ControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<List<OrderDto>>> GetAllOrders()
+        public async Task<ActionResult<List<OrderDto>>> GetAllOrders([FromQuery] OrderQueryParameters query)
         {
-            List<OrderDto> orders = await orderService.GetAllOrdersAsync();
+            PagedResult<OrderDto> orders = await orderService.GetAllOrdersAsync(query);
             return Ok(orders);
         }
 
