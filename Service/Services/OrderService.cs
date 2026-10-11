@@ -26,6 +26,8 @@ public class OrderService(ApplicationDbContext dbContext) : IOrderService
                 .ThenInclude(group => group.Quantities)
             .ToListAsync();
 
+        
+
         return orders.Select(order => order.ToDto()).ToList();
     }
 
