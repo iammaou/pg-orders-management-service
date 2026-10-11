@@ -13,7 +13,6 @@ public static class ConnectionStringBuilder
         var server   = Environment.GetEnvironmentVariable("SQL_SERVER")   ?? "localhost,1433";
         var database = Environment.GetEnvironmentVariable("SQL_DATABASE") ?? "OrdersDb";
 
-        return $"Server={server};Database={database};User Id={user};Password={password};" +
-               "TrustServerCertificate=True;Encrypt=False;";
+        return $"Server={server};Database={database};User Id={user};Password={password};TrustServerCertificate=True;Encrypt=False;";
     }
 }

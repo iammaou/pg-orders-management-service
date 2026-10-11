@@ -53,12 +53,20 @@ public class OrderService(ApplicationDbContext dbContext) : IOrderService
     public async Task<bool> DeleteOrderAsync(Guid id)
     {
         var order = await dbContext.Orders
-            .AsNoTracking()
             .Include(order => order.QuantityGroups)
                 .ThenInclude(group => group.Quantities)
             .FirstOrDefaultAsync(order => order.Id == id);
         
         if (order == null) return false;
+
+        foreach (var quantityGroup in order.QuantityGroups)
+        {
+            foreach (var quantity in quantityGroup.Quantities)
+            {
+                dbContext.Remove(quantity);
+            }
+            dbContext.Remove(quantityGroup);
+        }
 
         dbContext.Remove(order);
         await dbContext.SaveChangesAsync();
