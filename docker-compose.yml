@@ -20,6 +20,24 @@ services:
       retries: 10
       start_period: 30s
     restart: unless-stopped
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - SQL_USER=${SQL_USER}
+      - SQL_PASSWORD=${SQL_PASSWORD}
+      - SQL_SERVER=db,1433
+      - SQL_DATABASE=${SQL_DATABASE}
+      - API_KEYS=${API_KEYS}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   mssql_data:
