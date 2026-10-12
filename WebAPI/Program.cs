@@ -5,6 +5,7 @@ using Service.Data;
 using Service.Services;
 using Microsoft.AspNetCore.Mvc;
 using WebAPI.Handlers;
+using WebAPI.Middleware;
 
 Env.TraversePath().Load();
 
@@ -69,11 +70,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseExceptionHandler();
-
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+app.UseMiddleware<ApiKeyMiddleware>();
 
+app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
 
