@@ -37,11 +37,32 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+
+    // 1. Define the security scheme for X-API-KEY
+    c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
     {
-       Title = "Product Catalog API",
-       Version = "v1",
-       Description = "API for managing products and categories"
+        Description = "API Key needed to access the endpoints. X-API-Key: {your-api-key}",
+        Name = "X-API-KEY",               // The header name
+        In = ParameterLocation.Header,    // It's a header
+        Type = SecuritySchemeType.ApiKey, // API key type
+        Scheme = "ApiKeyScheme"
+    });
+
+    // 2. Add a security requirement so Swagger knows to use it
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "ApiKey"
+                }
+            },
+            new List<string>() // No scopes needed for an API key
+        }
     });
 });
 

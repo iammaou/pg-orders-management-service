@@ -42,9 +42,12 @@ namespace Service.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("TotalPrice")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Status");
 
                     b.ToTable("Orders");
                 });
@@ -100,14 +103,16 @@ namespace Service.Migrations
                 {
                     b.HasOne("Service.Entities.OrderQuantityGroup", null)
                         .WithMany("Quantities")
-                        .HasForeignKey("OrderQuantityGroupId");
+                        .HasForeignKey("OrderQuantityGroupId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Service.Entities.OrderQuantityGroup", b =>
                 {
                     b.HasOne("Service.Entities.Order", null)
                         .WithMany("QuantityGroups")
-                        .HasForeignKey("OrderId");
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Service.Entities.Order", b =>
