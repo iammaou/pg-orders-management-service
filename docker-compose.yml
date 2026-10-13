@@ -31,7 +31,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - SQL_USER=${SQL_USER}
       - SQL_PASSWORD=${SQL_PASSWORD}
-      - SQL_SERVER=db,1433
+      - SQL_SERVER=${SQL_SERVER}
       - SQL_DATABASE=${SQL_DATABASE}
       - API_KEYS=${API_KEYS}
     depends_on:
