@@ -11,14 +11,14 @@ namespace WebAPI.Controllers
     public class OrderController(IOrderService orderService) : ControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<List<OrderDto>>> GetAllOrders([FromQuery] OrderQueryParameters query)
+        public async Task<ActionResult<List<OrderDto>>> GetAllOrders([FromQuery] OrderQueryParameters query, CancellationToken cancellationToken)
         {
             PagedResult<OrderDto> orders = await orderService.GetAllOrdersAsync(query);
             return Ok(orders);
         }
 
         [HttpGet("id:guid")]
-        public async Task<ActionResult<OrderDto>> GetOrder(Guid id)
+        public async Task<ActionResult<OrderDto>> GetOrder(Guid id, CancellationToken cancellationToken)
         {
             var order = await orderService.GetOrderAsync(id);
 
@@ -26,7 +26,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<OrderDto>> CreateNewOrder(CreateOrderDTO order)
+        public async Task<ActionResult<OrderDto>> CreateNewOrder(CreateOrderDTO order, CancellationToken cancellationToken)
         {
             var newOrder = await orderService.CreateNewOrderAsync(order);
 
@@ -34,7 +34,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete("id:guid")]
-        public async Task<ActionResult> DeleteOrder(Guid id)
+        public async Task<ActionResult> DeleteOrder(Guid id, CancellationToken cancellationToken)
         {
             var delete = await orderService.DeleteOrderAsync(id);
 
@@ -42,7 +42,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("id:guid")]
-        public async Task<ActionResult<OrderDto>> UpdateOrder(Guid id, UpdateOrderDTO order)
+        public async Task<ActionResult<OrderDto>> UpdateOrder(Guid id, UpdateOrderDTO order, CancellationToken cancellationToken)
         {
             var newOrder = await orderService.UpdateOrderAsync(id, order);
 
