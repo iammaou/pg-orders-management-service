@@ -6,10 +6,16 @@ using Service.Services;
 using Microsoft.AspNetCore.Mvc;
 using WebAPI.Handlers;
 using WebAPI.Middleware;
+using Microsoft.AspNetCore.HttpOverrides;
+using System.Net;
+using System.Threading.RateLimiting;
 
 Env.TraversePath().Load();
 
 var builder = WebApplication.CreateBuilder(args);
+var configOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+var envOrigins = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS")?.Split(',', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+var allowedOrigins = configOrigins.Concat(envOrigins).Select(o => o.Trim()).Distinct().ToArray();
 
 // Add services to the container.
 
@@ -77,6 +83,37 @@ builder.Services.AddHealthChecks();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        if(allowedOrigins.Length > 0)
+        {
+            policy.WithOrigins(allowedOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        }
+    });
+});
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownIPNetworks.Add(new System.Net.IPNetwork(IPAddress.Parse("172.16.0.0"), 12));
+});
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("StrictPolicy", context => 
+        RateLimitPartition.GetFixedWindowLimiter(context.Connection.RemoteIpAddress?.ToString(), _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 10,
+            Window = TimeSpan.FromSeconds(30)
+        }));
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -91,7 +128,14 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseExceptionHandler();
+
+app.UseForwardedHeaders();
+
 if (!app.Environment.IsProduction()) app.UseHttpsRedirection();
+
+app.UseCors("AllowFrontend");
+
+app.UseRateLimiter();
 
 app.UseMiddleware<ApiKeyMiddleware>();
 
@@ -108,7 +152,7 @@ catch (Exception ex)
 }
 
 app.UseAuthorization();
-app.MapControllers();
-app.MapHealthChecks("/health");
+app.MapControllers().RequireRateLimiting("StrictPolicy");
+app.MapHealthChecks("/health").DisableRateLimiting();
 
 app.Run();
