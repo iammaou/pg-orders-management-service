@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "@types/js-cookie": "^3.0.6",
+    "js-cookie": "^3.0.8"
+  },
+  "scripts": {
+    "format": "npx prettier --config .prettierrc.json --write"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10"
+  }
+}
