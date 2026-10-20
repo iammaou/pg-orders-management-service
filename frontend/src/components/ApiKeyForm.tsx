@@ -1,4 +1,3 @@
-import React from 'react'
 import Cookies from 'js-cookie'
 import '../index.css'
 
@@ -23,7 +22,9 @@ export const ApiKeyForm = () => {
           }}
         />
   
-        <button onClick={() => {formHidden == false ? formHidden = true : formHidden=false}}>save</button>
+        <button onClick={() => {
+          formHidden == false ? formHidden = true : formHidden=false; window.location.reload();
+          }}>save</button>
     </div>
   );
 }
