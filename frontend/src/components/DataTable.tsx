@@ -1,29 +1,9 @@
 import Cookies from 'js-cookie'
 import { useEffect, useState } from 'react'
+import { OrderForm } from './OrderForm';
+import {type Order} from '../types/Interfaces'
 
 const apiUrl:string = "http://localhost:8080/api/Order";
-
-interface Order {
-    id: string,
-    name: string,
-    quantityGroups: QuantityGroup[],
-    createdAt: string,
-    deadline: string,
-    status: number,
-    totalPrice: number
-}
-
-interface QuantityGroup{
-    id: number,
-    groupKey: string,
-    quantities: Quantity[]
-}
-
-interface Quantity{
-    id: number,
-    size: string,
-    quantity: number
-}
 
 export const DataTable = () => {
     const [orderData, setOrderData] = useState<Order[]>([]);
@@ -110,6 +90,7 @@ export const DataTable = () => {
                       })}
                   </tbody>
               </table>
+              <OrderForm />
           </div>
         )
     }
