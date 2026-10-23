@@ -16,22 +16,29 @@ export const OrderForm = () => {
             }
         ]);
 
-    const quantityGroupHelper = (index:number, groupName?:string) => {
+    const quantityGroupValueHelper = (index:number, groupName:string) => {
         var newQuantityGroups = [...quantityGroups];
 
-        newQuantityGroups[index].groupKey=groupName ? groupName : newQuantityGroups[index].groupKey;
-
-        console.log(newQuantityGroups)
+        newQuantityGroups[index].groupKey=groupName != '' ? groupName : newQuantityGroups[index].groupKey;
 
         setQuantityGroups(newQuantityGroups);
 
     }
 
-    const modifyQuantityGroupAmount = (index?:number) => {
-        console.log("modifying...")
+    const SizeValueHelper = (index:number, jndex:number, size?:string, quantity?:number) => {
         var newQuantityGroups = [...quantityGroups];
 
-        console.log(`index = ${index}`)
+        if(size != undefined){
+            newQuantityGroups[index].quantities[jndex].size = size;
+        } else if (quantity != undefined){
+            newQuantityGroups[index].quantities[jndex].quantity = quantity
+        }
+
+        setQuantityGroups(newQuantityGroups);
+    }
+
+    const modifyQuantityGroupAmount = (index?:number) => {
+        var newQuantityGroups = [...quantityGroups];
 
         if(index != undefined && quantityGroups.length > 1){
             newQuantityGroups = newQuantityGroups.filter((_, i) => i !== index);
@@ -52,6 +59,23 @@ export const OrderForm = () => {
         setQuantityGroups(newQuantityGroups);
     }
 
+    const modifyQuantityAmout = (index:number, jndex?:number) => {
+        var newQuantityGroups = [...quantityGroups];
+
+        if(jndex != undefined && quantityGroups[index].quantities.length > 1){
+            newQuantityGroups[index].quantities = newQuantityGroups[index].quantities.filter((_, j) => j!==jndex)
+        } else if(jndex == undefined){
+            newQuantityGroups[index].quantities.push(
+                {
+                    size: '',
+                    quantity: 0
+                }
+            )
+        }
+
+        setQuantityGroups(newQuantityGroups);
+    }
+
   return (
     <div>
         <form>
@@ -64,7 +88,7 @@ export const OrderForm = () => {
                     return(
                         <div key={index}>
                             <label htmlFor={`quantityGroup-${index}`}>group</label>
-                            <input type="text" id={`quantityGroup-${index}`} name={`quantityGroup-${index}`} value={quantityGroups[index].groupKey} onChange={(e) => {quantityGroupHelper(index, e.target.value)}}/>
+                            <input type="text" id={`quantityGroup-${index}`} name={`quantityGroup-${index}`} placeholder={quantityGroups[index].groupKey} onChange={(e) => {quantityGroupValueHelper(index, e.target.value)}}/>
                             <button type="button" onClick={() => {modifyQuantityGroupAmount()}}>+</button>
                             <button type="button" onClick={() => {modifyQuantityGroupAmount(index)}}>-</button>
 
@@ -74,11 +98,11 @@ export const OrderForm = () => {
                                     return(
                                         <div key={jndex}>
                                             <label htmlFor={`size-${jndex}`}>size</label>
-                                            <input type="text" id={`size-${jndex}`} name={`size-${jndex}`}/>
+                                            <input type="text" id={`size-${jndex}`} name={`size-${jndex}`} placeholder={quantityGroups[index].quantities[jndex].size} onChange={(e) => {SizeValueHelper(index, jndex, e.target.value)}}/>
 
-                                            <input type="text" id={`quantity-${jndex}`} name={`quantity-${jndex}`}/>
-                                            <button type="button">+</button>
-                                            <button type="button">-</button>
+                                            <input type="number" id={`quantity-${jndex}`} name={`quantity-${jndex}`} placeholder={`${quantityGroups[index].quantities[jndex].quantity}`} onChange={(e) => {SizeValueHelper(index, jndex, undefined, Number(e.target.value))}}/>
+                                            <button type="button" onClick={() => {modifyQuantityAmout(index)}}>+</button>
+                                            <button type="button" onClick={() => {modifyQuantityAmout(index, jndex)}}>-</button>
                                         </div>
                                     );
                                 })
