@@ -6,11 +6,11 @@ export const OrderForm = () => {
     const [quantityGroups, setQuantityGroups] = useState<NewQuantityGroup[]>(
         [
             {
-                groupKey: '',
+                groupKey: '129',
                 quantities: [
                     {
-                        size: '',
-                        quantity: 0
+                        size: 'XL',
+                        quantity: 1
                     }
                 ]
             }
@@ -60,7 +60,10 @@ export const OrderForm = () => {
     }
 
     const modifyQuantityAmout = (index:number, jndex?:number) => {
+        console.log(`index = ${index}, jndex = ${jndex}`);
+        
         var newQuantityGroups = [...quantityGroups];
+        console.log(newQuantityGroups)
 
         if(jndex != undefined && quantityGroups[index].quantities.length > 1){
             newQuantityGroups[index].quantities = newQuantityGroups[index].quantities.filter((_, j) => j!==jndex)
@@ -73,6 +76,8 @@ export const OrderForm = () => {
             )
         }
 
+        console.log(newQuantityGroups)
+
         setQuantityGroups(newQuantityGroups);
     }
 
@@ -80,7 +85,7 @@ export const OrderForm = () => {
     <div>
         <form>
             <label htmlFor="Name">Name</label>
-            <input type="text" id="Name" name="Name"/>
+            <input type="text" id="Name" name="Name" placeholder="P&G"/>
 
             {/* Quantity Groups */}
             {
@@ -88,7 +93,7 @@ export const OrderForm = () => {
                     return(
                         <div key={index}>
                             <label htmlFor={`quantityGroup-${index}`}>group</label>
-                            <input type="text" id={`quantityGroup-${index}`} name={`quantityGroup-${index}`} placeholder={quantityGroups[index].groupKey} onChange={(e) => {quantityGroupValueHelper(index, e.target.value)}}/>
+                            <input type="text" id={`quantityGroup-${index}`} name={`quantityGroup-${index}`} value={quantityGroups[index].groupKey} onChange={(e) => {quantityGroupValueHelper(index, e.target.value)}}/>
                             <button type="button" onClick={() => {modifyQuantityGroupAmount()}}>+</button>
                             <button type="button" onClick={() => {modifyQuantityGroupAmount(index)}}>-</button>
 
@@ -98,9 +103,9 @@ export const OrderForm = () => {
                                     return(
                                         <div key={jndex}>
                                             <label htmlFor={`size-${jndex}`}>size</label>
-                                            <input type="text" id={`size-${jndex}`} name={`size-${jndex}`} placeholder={quantityGroups[index].quantities[jndex].size} onChange={(e) => {SizeValueHelper(index, jndex, e.target.value)}}/>
+                                            <input type="text" id={`size-${jndex}`} name={`size-${jndex}`} value={quantityGroups[index].quantities[jndex].size} onChange={(e) => {SizeValueHelper(index, jndex, e.target.value)}}/>
 
-                                            <input type="number" id={`quantity-${jndex}`} name={`quantity-${jndex}`} placeholder={`${quantityGroups[index].quantities[jndex].quantity}`} onChange={(e) => {SizeValueHelper(index, jndex, undefined, Number(e.target.value))}}/>
+                                            <input type="number" id={`quantity-${jndex}`} name={`quantity-${jndex}`} value={`${quantityGroups[index].quantities[jndex].quantity}`} onChange={(e) => {SizeValueHelper(index, jndex, undefined, Number(e.target.value))}}/>
                                             <button type="button" onClick={() => {modifyQuantityAmout(index)}}>+</button>
                                             <button type="button" onClick={() => {modifyQuantityAmout(index, jndex)}}>-</button>
                                         </div>
@@ -111,6 +116,12 @@ export const OrderForm = () => {
                     );
                 })
             }
+
+            <label htmlFor="Deadline">Deadline</label>
+            <input type="datetime-local" name="Deadline" id="Deadline" />
+
+            <label htmlFor="Price">Price</label>
+            <input type="number" />
         </form>
     </div>
   )
