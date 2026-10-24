@@ -11,6 +11,7 @@ public class UpdateOrderDTO
     [MinLength(1, ErrorMessage = "An order must have at least one quantity group.")]
     public List<UpdateOrderQuantityGroupDTO> QuantityGroups {get;set;} = new();
     public DateTime Deadline {get;set;}
+    [Range(0, double.MaxValue, ErrorMessage = "Price musn't be a negative number!")]
     public decimal TotalPrice {get;set;}
     public OrderStatus Status {get;set;}
 }

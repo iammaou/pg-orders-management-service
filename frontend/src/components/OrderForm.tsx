@@ -1,8 +1,13 @@
 import { useState } from "react"
-import { type NewQuantityGroup } from "../types/Interfaces";
+import { type NewOrder, type NewQuantityGroup } from "../types/Interfaces";
+import { apiUrl } from "./DataTable";
+import Cookies from 'js-cookie'
 
-export const OrderForm = () => {
-    // const [newOrder, setNewOrder] = useState<NewOrder>();
+interface props{
+    dataTableFormShown:boolean
+}
+
+export const OrderForm = ({dataTableFormShown}:props) => {
     const [quantityGroups, setQuantityGroups] = useState<NewQuantityGroup[]>(
         [
             {
@@ -15,6 +20,9 @@ export const OrderForm = () => {
                 ]
             }
         ]);
+    const [name, setName] = useState<string>('');
+    const [deadline, setDeadline] = useState<string>('');
+    const [price, setPrice] = useState<number>(0);
 
     const quantityGroupValueHelper = (index:number, groupName:string) => {
         var newQuantityGroups = [...quantityGroups];
@@ -60,10 +68,8 @@ export const OrderForm = () => {
     }
 
     const modifyQuantityAmout = (index:number, jndex?:number) => {
-        console.log(`index = ${index}, jndex = ${jndex}`);
         
         var newQuantityGroups = [...quantityGroups];
-        console.log(newQuantityGroups)
 
         if(jndex != undefined && quantityGroups[index].quantities.length > 1){
             newQuantityGroups[index].quantities = newQuantityGroups[index].quantities.filter((_, j) => j!==jndex)
@@ -76,16 +82,52 @@ export const OrderForm = () => {
             )
         }
 
-        console.log(newQuantityGroups)
-
         setQuantityGroups(newQuantityGroups);
     }
 
+    async function sendData(payload:NewOrder) {
+        return await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-api-key': `${Cookies.get('x-api-key')}`
+            },
+            body: JSON.stringify(payload)
+        });
+
+
+    }
+
+    const handleSubmit = async(e: React.SubmitEvent) => {
+        e.preventDefault();
+
+        const payload: NewOrder = {
+            name: name,
+            deadline: deadline,
+            totalPrice: price == undefined ? 0 : price,
+            quantityGroups: quantityGroups
+        }
+
+        try {
+            const response = await sendData(payload);
+
+            if(!response.ok){
+                alert(`Failed to send data!`);
+            } else{
+                window.location.reload();
+            }
+
+
+        } catch (e) {
+            console.error(`Error occured: ${e}`)
+        } 
+    }
+
   return (
-    <div>
-        <form>
+    <div className={dataTableFormShown ? "" : "hidden"}>
+        <form onSubmit={handleSubmit}>
             <label htmlFor="Name">Name</label>
-            <input type="text" id="Name" name="Name" placeholder="P&G"/>
+            <input type="text" id="Name" name="Name" placeholder="P&G" value={name} onChange={(e) => {setName(e.target.value)}}/>
 
             {/* Quantity Groups */}
             {
@@ -118,10 +160,12 @@ export const OrderForm = () => {
             }
 
             <label htmlFor="Deadline">Deadline</label>
-            <input type="datetime-local" name="Deadline" id="Deadline" />
+            <input type="datetime-local" name="Deadline" id="Deadline" value={deadline} onChange={(e) => {setDeadline(e.target.value)}}/>
 
             <label htmlFor="Price">Price</label>
-            <input type="number" />
+            <input type="number" value={price} onChange={((e) => {setPrice(Number(e.target.value))})}/>
+
+            <button type="submit">Submit</button>
         </form>
     </div>
   )

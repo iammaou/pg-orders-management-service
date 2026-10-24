@@ -80,7 +80,7 @@ public static class OrderMapper
         Deadline = dto.Deadline,
         CreatedAt = DateTime.UtcNow,
         Status = OrderStatus.Created,
-        TotalPrice = 0m,
+        TotalPrice = dto.Price,
         QuantityGroups = [.. dto.QuantityGroups.Select(g => g.ToEntity())]
     };  
 

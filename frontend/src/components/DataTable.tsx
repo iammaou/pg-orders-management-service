@@ -2,10 +2,12 @@ import Cookies from 'js-cookie'
 import { useEffect, useState } from 'react'
 import { OrderForm } from './OrderForm';
 import {type Order} from '../types/Interfaces'
+import "../App.css"
 
-const apiUrl:string = "http://localhost:8080/api/Order";
+export const apiUrl:string = "http://localhost:8080/api/Order";
 
 export const DataTable = () => {
+    const [dataTableFormShown, setDataTableFormShown] = useState<boolean>(false);
     const [orderData, setOrderData] = useState<Order[]>([]);
 
     async function getOrders() {
@@ -21,7 +23,6 @@ export const DataTable = () => {
         })
         .then((data) => {
             setOrderData(data.items);
-            console.log(data)
         }).catch((err) => {
             console.error(err);
         })
@@ -40,7 +41,6 @@ export const DataTable = () => {
         })
     }
 
-    if(Cookies.get('x-api-key') !== undefined){
         useEffect(() => {
             getOrders();
         }, []);
@@ -90,9 +90,10 @@ export const DataTable = () => {
                       })}
                   </tbody>
               </table>
-              <OrderForm />
+              <button type="button" onClick={() => {
+                    dataTableFormShown == false ? setDataTableFormShown(true) : setDataTableFormShown(false);
+                }}>Add New Order</button>
+              <OrderForm dataTableFormShown={dataTableFormShown}/>
           </div>
         )
     }
-
-}
