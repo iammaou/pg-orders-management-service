@@ -236,7 +236,19 @@ export const OrderForm = ({dataTableFormShown, postOrPut, selectedId}:props) => 
             <input type="number" value={price} onChange={((e) => {setPrice(Number(e.target.value))})} className={postOrPut == "PUT" ? "" : "hidden"}/>
 
             <label htmlFor="Status" className={postOrPut == "PUT" ? "" : "hidden"}>Status</label>
-            <input type="number" value={orderStatus} onChange={((e) => {setOrderStatus(Number(e.target.value))})} className={postOrPut == "PUT" ? "" : "hidden"}/>
+            <select 
+                name="Status" 
+                id="Status" 
+                value={orderStatus} 
+                onChange={(e) => setOrderStatus(Number(e.target.value))} 
+                className={postOrPut == "PUT" ? "" : "hidden"}
+                >
+                    <option value="0">Created</option>
+                    <option value="1">Ordered</option>
+                    <option value="2">Finished</option>
+                    <option value="3">Reported As Finished</option>
+                    <option value="4">Delivered</option>
+                </select>
 
             <button type="submit">Submit</button>
         </form>

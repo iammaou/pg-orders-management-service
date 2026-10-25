@@ -1,12 +1,12 @@
 import Cookies from 'js-cookie'
 import { useEffect, useState } from 'react'
 import { OrderForm } from './OrderForm';
-import {type Order} from '../types/Interfaces'
+import {type EditOrder, type Order} from '../types/Interfaces'
 import "../App.css"
 
 export const apiUrl:string = "http://localhost:8080/api/Order";
 
-const OrderStatusMap: Record<number, string> = {
+export const OrderStatusMap: Record<number, string> = {
   0: 'Created',
   1: 'Ordered',
   2: 'Finished',
@@ -99,7 +99,41 @@ export const DataTable = () => {
                                   })}</th>
                                   <th>{new Date(order.createdAt).toLocaleDateString()}</th>
                                   <th>{new Date(order.deadline).toLocaleDateString()}</th>
-                                  <th>{OrderStatusMap[order.status]}</th>
+                                  {/* <th>{OrderStatusMap[order.status]}</th> */}
+                                  <th>
+                                    <select name="statusSelect" id="statusSelect" value={order.status} onChange={async(e) => {
+                                         try{
+                                            const payload: EditOrder = {
+                                                name: order.name,
+                                                deadline: order.deadline,
+                                                totalPrice: order.totalPrice,
+                                                quantityGroups: order.quantityGroups,
+                                                createdAt: order.createdAt,
+                                                status: Number(e.target.value)
+                                            }
+
+                                            await fetch(`${apiUrl}/${order.id}`, {
+                                                method: "PUT",
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                    'X-api-key': `${Cookies.get('x-api-key')}`,
+                                                },
+                                                body: JSON.stringify(payload)
+                                            })
+
+                                            window.location.reload();
+
+                                        } catch (e) {
+                                            console.error(e);
+                                        }
+                                    }}>
+                                        <option value="0">Created</option>
+                                        <option value="1">Ordered</option>
+                                        <option value="2">Finished</option>
+                                        <option value="3">Reported As Finished</option>
+                                        <option value="4">Delivered</option>
+                                    </select>
+                                  </th>
                                   <th>{`${order.totalPrice}€`}</th>
                                   <th><button onClick={() => handleOrderForm("PUT", order.id)}>E</button></th>
                                   <th><button onClick={() => {deleteOrder(order.id)}}>D</button></th>
