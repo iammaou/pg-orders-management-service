@@ -6,9 +6,19 @@ import "../App.css"
 
 export const apiUrl:string = "http://localhost:8080/api/Order";
 
+const OrderStatusMap: Record<number, string> = {
+  0: 'Created',
+  1: 'Ordered',
+  2: 'Finished',
+  3: 'Reported As Finished',
+  4: 'Delivered',
+};
+
 export const DataTable = () => {
     const [dataTableFormShown, setDataTableFormShown] = useState<boolean>(false);
     const [orderData, setOrderData] = useState<Order[]>([]);
+    const [postOrPut, setPostOrPut] = useState<"POST" | "PUT">("POST");
+    const [selectedId, setSelectedId] = useState<string>('');
 
     async function getOrders() {
         await fetch(apiUrl, {
@@ -39,6 +49,14 @@ export const DataTable = () => {
         .then(() => {
             window.location.reload();
         })
+    }
+
+    const handleOrderForm = (method:"POST"|"PUT", id?:string) => {
+        setPostOrPut(method);
+        if(method == "PUT" && id){
+            setSelectedId(id)
+        }
+        dataTableFormShown == false ? setDataTableFormShown(true) : setDataTableFormShown(false);
     }
 
         useEffect(() => {
@@ -81,9 +99,9 @@ export const DataTable = () => {
                                   })}</th>
                                   <th>{new Date(order.createdAt).toLocaleDateString()}</th>
                                   <th>{new Date(order.deadline).toLocaleDateString()}</th>
-                                  <th>{order.status}</th>
-                                  <th>{order.totalPrice}</th>
-                                  <th><button>E</button></th>
+                                  <th>{OrderStatusMap[order.status]}</th>
+                                  <th>{`${order.totalPrice}€`}</th>
+                                  <th><button onClick={() => handleOrderForm("PUT", order.id)}>E</button></th>
                                   <th><button onClick={() => {deleteOrder(order.id)}}>D</button></th>
                               </tr>
                           );
@@ -91,9 +109,9 @@ export const DataTable = () => {
                   </tbody>
               </table>
               <button type="button" onClick={() => {
-                    dataTableFormShown == false ? setDataTableFormShown(true) : setDataTableFormShown(false);
+                    handleOrderForm("POST");
                 }}>Add New Order</button>
-              <OrderForm dataTableFormShown={dataTableFormShown}/>
+              <OrderForm dataTableFormShown={dataTableFormShown} postOrPut={postOrPut} selectedId={selectedId}/>
           </div>
         )
     }

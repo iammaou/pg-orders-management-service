@@ -36,3 +36,23 @@ export interface NewQuantity{
     size: string,
     quantity: number
 }
+
+export interface EditOrder{
+    name: string,
+    quantityGroups: EditQuantityGroup[],
+    deadline: string,
+    createdAt: string,
+    totalPrice: number,
+    status: number
+}
+
+export interface EditQuantityGroup{
+    id?: number
+    groupKey: string,
+    quantities: EditQuantity[]
+}
+
+export interface EditQuantity{
+    size: string,
+    quantity: number
+}

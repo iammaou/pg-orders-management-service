@@ -1,21 +1,23 @@
-import { useState } from "react"
-import { type NewOrder, type NewQuantityGroup } from "../types/Interfaces";
+import { useEffect, useState } from "react"
+import { type NewOrder, type NewQuantityGroup, type EditOrder } from "../types/Interfaces";
 import { apiUrl } from "./DataTable";
 import Cookies from 'js-cookie'
 
 interface props{
-    dataTableFormShown:boolean
+    dataTableFormShown:boolean,
+    postOrPut: "POST" | "PUT",
+    selectedId: string
 }
 
-export const OrderForm = ({dataTableFormShown}:props) => {
+export const OrderForm = ({dataTableFormShown, postOrPut, selectedId}:props) => {
     const [quantityGroups, setQuantityGroups] = useState<NewQuantityGroup[]>(
         [
             {
-                groupKey: '129',
+                groupKey: '',
                 quantities: [
                     {
-                        size: 'XL',
-                        quantity: 1
+                        size: '',
+                        quantity: 0
                     }
                 ]
             }
@@ -23,6 +25,9 @@ export const OrderForm = ({dataTableFormShown}:props) => {
     const [name, setName] = useState<string>('');
     const [deadline, setDeadline] = useState<string>('');
     const [price, setPrice] = useState<number>(0);
+    const [oldCreatedAt, setOldCreatedAt] = useState<string>('');
+    const [createdAt, setCreatedAt] = useState<string>('');
+    const [orderStatus, setOrderStatus] = useState<number>(0);
 
     const quantityGroupValueHelper = (index:number, groupName:string) => {
         var newQuantityGroups = [...quantityGroups];
@@ -85,49 +90,109 @@ export const OrderForm = ({dataTableFormShown}:props) => {
         setQuantityGroups(newQuantityGroups);
     }
 
-    async function sendData(payload:NewOrder) {
-        return await fetch(apiUrl, {
-            method: 'POST',
+    async function sendData(payload:NewOrder, postOrPut:"POST" | "PUT", id?:string) {
+        return await fetch(!id ? apiUrl : apiUrl + `/${id}`, {
+            method: postOrPut.toUpperCase(),
             headers: {
                 'Content-Type': 'application/json',
                 'X-api-key': `${Cookies.get('x-api-key')}`
             },
             body: JSON.stringify(payload)
         });
-
-
     }
 
     const handleSubmit = async(e: React.SubmitEvent) => {
         e.preventDefault();
 
-        const payload: NewOrder = {
-            name: name,
-            deadline: deadline,
-            totalPrice: price == undefined ? 0 : price,
-            quantityGroups: quantityGroups
-        }
-
-        try {
-            const response = await sendData(payload);
-
-            if(!response.ok){
-                alert(`Failed to send data!`);
-            } else{
-                window.location.reload();
+        if(postOrPut == "POST"){
+            const payload: NewOrder = {
+                name: name,
+                deadline: deadline,
+                totalPrice: price == undefined ? 0 : price,
+                quantityGroups: quantityGroups
+            }
+    
+            try {
+                const response = await sendData(payload, postOrPut);
+    
+                if(!response.ok){
+                    alert(`Failed to send data!`);
+                } else{
+                    window.location.reload();
+                }
+    
+    
+            } catch (e) {
+                console.error(`Error occured: ${e}`)
+            } 
+        } else{
+            const payload: EditOrder = {
+                name: name,
+                deadline: deadline,
+                totalPrice: price,
+                quantityGroups: quantityGroups,
+                createdAt: oldCreatedAt,
+                status: orderStatus
             }
 
+            try {
+                const response = await sendData(payload, postOrPut, selectedId);
 
-        } catch (e) {
-            console.error(`Error occured: ${e}`)
-        } 
+                if(!response.ok){
+                    alert("Failed to send data!");
+                } else{
+                    window.location.reload();
+                }
+            } catch (e){
+                console.error(`Error occured: ${e}`);
+            }
+        }
     }
+
+    useEffect(() => {
+        if(postOrPut == "PUT" && selectedId){
+            console.log(`${apiUrl}/${selectedId}`)
+
+            async function getData(id:string){
+                await fetch(`${apiUrl}/${id}`, {
+                    method: "GET",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-api-key': `${Cookies.get('x-api-key')}`
+                    }
+                }).then(res => res.json())
+                .then(data => { 
+                    setName(data.name);
+                    setQuantityGroups(data.quantityGroups);
+                    setOldCreatedAt(data.createdAt);
+                    setCreatedAt(() => {
+                        const date = new Date(data.createdAt);
+                        
+                        const correctedDate = new Date(date.getTime() + (2 * 60 * 60 * 1000)); 
+
+                        const year = correctedDate.getFullYear();
+                        const month = String(correctedDate.getMonth() + 1).padStart(2, '0');
+                        const day = String(correctedDate.getDate()).padStart(2, '0');
+                        const hours = String(correctedDate.getHours()).padStart(2, '0');
+                        const minutes = String(correctedDate.getMinutes()).padStart(2, '0');
+
+                        return `${year}-${month}-${day}T${hours}:${minutes}`;
+                    });
+                    setOrderStatus(data.status);
+                    setDeadline(data.deadline);
+                    setPrice(data.totalPrice);
+                });
+            }
+
+            getData(selectedId);
+        }
+    }, [selectedId])
 
   return (
     <div className={dataTableFormShown ? "" : "hidden"}>
         <form onSubmit={handleSubmit}>
             <label htmlFor="Name">Name</label>
-            <input type="text" id="Name" name="Name" placeholder="P&G" value={name} onChange={(e) => {setName(e.target.value)}}/>
+            <input type="text" id="Name" name="Name" placeholder="P&G" value={name} onChange={(e) => {setName(e.target.value)}} required/>
 
             {/* Quantity Groups */}
             {
@@ -135,7 +200,7 @@ export const OrderForm = ({dataTableFormShown}:props) => {
                     return(
                         <div key={index}>
                             <label htmlFor={`quantityGroup-${index}`}>group</label>
-                            <input type="text" id={`quantityGroup-${index}`} name={`quantityGroup-${index}`} value={quantityGroups[index].groupKey} onChange={(e) => {quantityGroupValueHelper(index, e.target.value)}}/>
+                            <input type="text" id={`quantityGroup-${index}`} name={`quantityGroup-${index}`} value={quantityGroups[index].groupKey} onChange={(e) => {quantityGroupValueHelper(index, e.target.value)}} required placeholder="129"/>
                             <button type="button" onClick={() => {modifyQuantityGroupAmount()}}>+</button>
                             <button type="button" onClick={() => {modifyQuantityGroupAmount(index)}}>-</button>
 
@@ -145,13 +210,15 @@ export const OrderForm = ({dataTableFormShown}:props) => {
                                     return(
                                         <div key={jndex}>
                                             <label htmlFor={`size-${jndex}`}>size</label>
-                                            <input type="text" id={`size-${jndex}`} name={`size-${jndex}`} value={quantityGroups[index].quantities[jndex].size} onChange={(e) => {SizeValueHelper(index, jndex, e.target.value)}}/>
+                                            <input type="text" id={`size-${jndex}`} name={`size-${jndex}`} value={quantityGroups[index].quantities[jndex].size} onChange={(e) => {SizeValueHelper(index, jndex, e.target.value)}} required placeholder="XL"/>
 
-                                            <input type="number" id={`quantity-${jndex}`} name={`quantity-${jndex}`} value={`${quantityGroups[index].quantities[jndex].quantity}`} onChange={(e) => {SizeValueHelper(index, jndex, undefined, Number(e.target.value))}}/>
+                                            <input type="number" id={`quantity-${jndex}`} name={`quantity-${jndex}`} value={quantityGroups[index].quantities[jndex].quantity == 0 ? "" : quantityGroups[index].quantities[jndex].quantity} onChange={(e) => {SizeValueHelper(index, jndex, undefined, Number(e.target.value))}} required placeholder="3"/>
                                             <button type="button" onClick={() => {modifyQuantityAmout(index)}}>+</button>
                                             <button type="button" onClick={() => {modifyQuantityAmout(index, jndex)}}>-</button>
                                         </div>
                                     );
+
+                                    quantityGroups[index].quantities[jndex].quantity
                                 })
                             }
                         </div>
@@ -160,10 +227,16 @@ export const OrderForm = ({dataTableFormShown}:props) => {
             }
 
             <label htmlFor="Deadline">Deadline</label>
-            <input type="datetime-local" name="Deadline" id="Deadline" value={deadline} onChange={(e) => {setDeadline(e.target.value)}}/>
+            <input type="datetime-local" name="Deadline" id="Deadline" value={deadline} onChange={(e) => {setDeadline(e.target.value)}} required/>
 
-            <label htmlFor="Price">Price</label>
-            <input type="number" value={price} onChange={((e) => {setPrice(Number(e.target.value))})}/>
+            <label htmlFor="CreatedAt" className={postOrPut == "PUT" ? "" : "hidden"}>CreatedAt</label>
+            <input type="datetime-local" name="CreatedAt" id="CreatedAt" value={createdAt} className={postOrPut == "PUT" ? "" : "hidden"} readOnly/>
+
+            <label htmlFor="Price" className={postOrPut == "PUT" ? "" : "hidden"}>Price</label>
+            <input type="number" value={price} onChange={((e) => {setPrice(Number(e.target.value))})} className={postOrPut == "PUT" ? "" : "hidden"}/>
+
+            <label htmlFor="Status" className={postOrPut == "PUT" ? "" : "hidden"}>Status</label>
+            <input type="number" value={orderStatus} onChange={((e) => {setOrderStatus(Number(e.target.value))})} className={postOrPut == "PUT" ? "" : "hidden"}/>
 
             <button type="submit">Submit</button>
         </form>
