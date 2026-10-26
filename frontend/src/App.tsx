@@ -10,10 +10,10 @@ function App() {
   }
 
   return (
-    <div>
+    <div className='bg-gray-800 w-full h-screen kedebideri-regular'>
       <ApiKeyForm />
-      <button onClick={handleApiKeyChange}>change api key</button>
-      <DataTable />
+      <button onClick={handleApiKeyChange} className={Cookies.get('x-api-key') == undefined ? "hidden" : ""}>change api key</button>
+      <DataTable/>
     </div>
   )
 }

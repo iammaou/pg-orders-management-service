@@ -64,7 +64,7 @@ export const DataTable = () => {
         }, []);
 
         return (
-          <div>
+          <div className={Cookies.get('x-api-key') == undefined ? "hidden" : ""}>
               <table>
                   <thead>
                       <tr>
