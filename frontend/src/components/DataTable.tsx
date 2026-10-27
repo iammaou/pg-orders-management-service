@@ -65,7 +65,7 @@ export const DataTable = () => {
 
         return (
           <div className={`${Cookies.get('x-api-key') == undefined ? "hidden" : ""} flex flex-col w-full pt-10 items-center`}>
-            <div className='border rounded-lg w-5/6 px-10 py-5'>
+            <div className={`border rounded-lg w-5/6 px-10 py-5 ${dataTableFormShown ? "blur-sm pointer-events-none z-0" : ""}`}>
               <table className='w-full table-fixed'>
                   <thead>
                       <tr className='border-b'>
@@ -101,7 +101,7 @@ export const DataTable = () => {
                                   <th>{new Date(order.deadline).toLocaleDateString("en-GB")}</th>
                                   {/* <th>{OrderStatusMap[order.status]}</th> */}
                                   <th>
-                                    <select name="statusSelect" id="statusSelect" value={order.status} onChange={async(e) => {
+                                    <select name="statusSelect" className='bg-[#171717] border p-3' id="statusSelect" value={order.status} onChange={async(e) => {
                                          try{
                                             const payload: EditOrder = {
                                                 name: order.name,
@@ -128,9 +128,9 @@ export const DataTable = () => {
                                         }
                                     }}>
                                         <option value="0">Created</option>
-                                        <option value="1">Ordered</option>
+                                        <option value="1" className='bg-[#1f1f1f]'>Ordered</option>
                                         <option value="2">Finished</option>
-                                        <option value="3">Reported</option>
+                                        <option value="3" className='bg-[#1f1f1f]'>Reported</option>
                                         <option value="4">Delivered</option>
                                     </select>
                                   </th>
@@ -161,7 +161,7 @@ export const DataTable = () => {
                   </tbody>
               </table>
             </div>
-              <OrderForm dataTableFormShown={dataTableFormShown} postOrPut={postOrPut} selectedId={selectedId}/>
+              <OrderForm dataTableFormShown={dataTableFormShown} postOrPut={postOrPut} selectedId={selectedId} onClose={() => setDataTableFormShown(false)}/>
           </div>
         )
     }

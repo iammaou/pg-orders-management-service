@@ -6,10 +6,11 @@ import Cookies from 'js-cookie'
 interface props{
     dataTableFormShown:boolean,
     postOrPut: "POST" | "PUT",
-    selectedId: string
+    selectedId: string,
+    onClose: () => void
 }
 
-export const OrderForm = ({dataTableFormShown, postOrPut, selectedId}:props) => {
+export const OrderForm = ({dataTableFormShown, postOrPut, selectedId, onClose}:props) => {
     const [quantityGroups, setQuantityGroups] = useState<NewQuantityGroup[]>(
         [
             {
@@ -188,70 +189,111 @@ export const OrderForm = ({dataTableFormShown, postOrPut, selectedId}:props) => 
         }
     }, [selectedId])
 
-  return (
-    <div className={dataTableFormShown ? "" : "hidden"}>
-        <form onSubmit={handleSubmit}>
-            <label htmlFor="Name">Name</label>
-            <input type="text" id="Name" name="Name" placeholder="P&G" value={name} onChange={(e) => {setName(e.target.value)}} required/>
+    const resetState = () => {
+        setQuantityGroups(
+            [
+                {
+                    groupKey: '',
+                    quantities: [
+                        {
+                            size: '',
+                            quantity: 0
+                        }
+                    ]
+                }
+            ]
+        );
 
-            {/* Quantity Groups */}
-            {
-                Array.from({length:quantityGroups.length}).map((_, index) => {
-                    return(
-                        <div key={index}>
-                            <label htmlFor={`quantityGroup-${index}`}>group</label>
-                            <input type="text" id={`quantityGroup-${index}`} name={`quantityGroup-${index}`} value={quantityGroups[index].groupKey} onChange={(e) => {quantityGroupValueHelper(index, e.target.value)}} required placeholder="129"/>
-                            <button type="button" onClick={() => {modifyQuantityGroupAmount()}}>+</button>
-                            <button type="button" onClick={() => {modifyQuantityGroupAmount(index)}}>-</button>
+        setName('');
+        setDeadline('');
+        setPrice(0);
+        setOldCreatedAt('');
+        setCreatedAt('');
+        setOrderStatus(0);
+    }
 
-                            {/* Size */}
-                            {
-                                Array.from({length:quantityGroups[index].quantities.length}).map((_, jndex) => {
-                                    return(
-                                        <div key={jndex}>
-                                            <label htmlFor={`size-${jndex}`}>size</label>
-                                            <input type="text" id={`size-${jndex}`} name={`size-${jndex}`} value={quantityGroups[index].quantities[jndex].size} onChange={(e) => {SizeValueHelper(index, jndex, e.target.value)}} required placeholder="XL"/>
+    return (
+        <div className={`${dataTableFormShown ? "" : "hidden"} z-1 absolute bg-[#1f1f1f] p-10 border rounded-lg w-2/3`}>
+            <div className="relative w-full h-full">
+                <button 
+                    type="button" 
+                    onClick={() => {
+                        resetState();
 
-                                            <input type="number" id={`quantity-${jndex}`} name={`quantity-${jndex}`} value={quantityGroups[index].quantities[jndex].quantity == 0 ? "" : quantityGroups[index].quantities[jndex].quantity} onChange={(e) => {SizeValueHelper(index, jndex, undefined, Number(e.target.value))}} required placeholder="3"/>
-                                            <button type="button" onClick={() => {modifyQuantityAmout(index)}}>+</button>
-                                            <button type="button" onClick={() => {modifyQuantityAmout(index, jndex)}}>-</button>
+                        onClose();
+                    }}
+                    className="absolute top-0 right-0 border rounded-lg px-2 bg-[#e81123] border-[#980b17] hover:bg-[#980b17]"
+                >X</button>
+
+                <form onSubmit={handleSubmit} className="text-xl grid">
+                    <div className="flex justify-center items-center gap-3 pb-3">
+                        <label htmlFor="Name" className="">Name:</label>
+                        <input type="text" className="border rounded-lg p-1" id="Name" name="Name" placeholder="P&G" value={name} onChange={(e) => {setName(e.target.value)}} required/>
+                    </div>
+
+                    {/* Quantity Groups */}
+                    {
+                        Array.from({length:quantityGroups.length}).map((_, index) => {
+                            return(
+                                <div key={index}>
+                                    <div className="flex justify-between">
+                                        <div className="flex gap-3 justify-center items-center">
+                                            <label htmlFor={`quantityGroup-${index}`}>Group:</label>
+                                            <input type="text" className="border rounded-lg p-1" id={`quantityGroup-${index}`} name={`quantityGroup-${index}`} value={quantityGroups[index].groupKey} onChange={(e) => {quantityGroupValueHelper(index, e.target.value)}} required placeholder="129"/>
                                         </div>
-                                    );
+                                        <div className="flex gap-3">
+                                            <button className="border rounded-lg w-10 hover:bg-white hover:text-[#1f1f1f]" type="button" onClick={() => {modifyQuantityGroupAmount()}}>+</button>
+                                            <button className="border rounded-lg w-10 hover:bg-white hover:text-[#1f1f1f]" type="button" onClick={() => {modifyQuantityGroupAmount(index)}}>-</button>
+                                        </div>
+                                    </div>
 
-                                    quantityGroups[index].quantities[jndex].quantity
-                                })
-                            }
-                        </div>
-                    );
-                })
-            }
+                                    {/* Size */}
+                                    {
+                                        Array.from({length:quantityGroups[index].quantities.length}).map((_, jndex) => {
+                                            return(
+                                                <div key={jndex}>
+                                                    <label htmlFor={`size-${jndex}`}>size</label>
+                                                    <input type="text" id={`size-${jndex}`} name={`size-${jndex}`} value={quantityGroups[index].quantities[jndex].size} onChange={(e) => {SizeValueHelper(index, jndex, e.target.value)}} required placeholder="XL"/>
 
-            <label htmlFor="Deadline">Deadline</label>
-            <input type="datetime-local" name="Deadline" id="Deadline" value={deadline} onChange={(e) => {setDeadline(e.target.value)}} required/>
+                                                    <input type="number" id={`quantity-${jndex}`} name={`quantity-${jndex}`} value={quantityGroups[index].quantities[jndex].quantity == 0 ? "" : quantityGroups[index].quantities[jndex].quantity} onChange={(e) => {SizeValueHelper(index, jndex, undefined, Number(e.target.value))}} required placeholder="3"/>
+                                                    <button type="button" onClick={() => {modifyQuantityAmout(index)}}>+</button>
+                                                    <button type="button" onClick={() => {modifyQuantityAmout(index, jndex)}}>-</button>
+                                                </div>
+                                            );
+                                        })
+                                    }
+                                </div>
+                            );
+                        })
+                    }
 
-            <label htmlFor="CreatedAt" className={postOrPut == "PUT" ? "" : "hidden"}>CreatedAt</label>
-            <input type="datetime-local" name="CreatedAt" id="CreatedAt" value={createdAt} className={postOrPut == "PUT" ? "" : "hidden"} readOnly/>
+                    <label htmlFor="Deadline">Deadline</label>
+                    <input type="datetime-local" name="Deadline" id="Deadline" value={deadline} onChange={(e) => {setDeadline(e.target.value)}} required/>
 
-            <label htmlFor="Price" className={postOrPut == "PUT" ? "" : "hidden"}>Price</label>
-            <input type="number" value={price} onChange={((e) => {setPrice(Number(e.target.value))})} className={postOrPut == "PUT" ? "" : "hidden"}/>
+                    <label htmlFor="CreatedAt" className={postOrPut == "PUT" ? "" : "hidden"}>CreatedAt</label>
+                    <input type="datetime-local" name="CreatedAt" id="CreatedAt" value={createdAt} className={postOrPut == "PUT" ? "" : "hidden"} readOnly/>
 
-            <label htmlFor="Status" className={postOrPut == "PUT" ? "" : "hidden"}>Status</label>
-            <select 
-                name="Status" 
-                id="Status" 
-                value={orderStatus} 
-                onChange={(e) => setOrderStatus(Number(e.target.value))} 
-                className={postOrPut == "PUT" ? "" : "hidden"}
-                >
-                    <option value="0">Created</option>
-                    <option value="1">Ordered</option>
-                    <option value="2">Finished</option>
-                    <option value="3">Reported As Finished</option>
-                    <option value="4">Delivered</option>
-                </select>
+                    <label htmlFor="Price" className={postOrPut == "PUT" ? "" : "hidden"}>Price</label>
+                    <input type="number" value={price} onChange={((e) => {setPrice(Number(e.target.value))})} className={postOrPut == "PUT" ? "" : "hidden"}/>
 
-            <button type="submit">Submit</button>
-        </form>
-    </div>
-  )
+                    <label htmlFor="Status" className={postOrPut == "PUT" ? "" : "hidden"}>Status</label>
+                    <select 
+                        name="Status" 
+                        id="Status" 
+                        value={orderStatus} 
+                        onChange={(e) => setOrderStatus(Number(e.target.value))} 
+                        className={postOrPut == "PUT" ? "" : "hidden"}
+                        >
+                            <option value="0">Created</option>
+                            <option value="1">Ordered</option>
+                            <option value="2">Finished</option>
+                            <option value="3">Reported As Finished</option>
+                            <option value="4">Delivered</option>
+                        </select>
+
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+        </div>
+    )
 }
