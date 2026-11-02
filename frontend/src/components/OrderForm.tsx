@@ -151,7 +151,13 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, onClose, 
                 if (!response.ok) {
                     alert("Failed to send data!");
                 } else {
-                    window.location.reload();
+                    const data:Order = await response.json();
+
+                    const newOrdedArray:Order[] = orderData.map(order => order.id === selectedId ? data : order);
+
+                    onSuccess(newOrdedArray);
+                    resetState();
+                    onClose();
                 }
             } catch (e) {
                 console.error(`Error occured: ${e}`);
@@ -196,7 +202,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, onClose, 
 
             getData(selectedId);
         }
-    }, [selectedId])
+    }, [selectedId, postOrPut])
 
     const resetState = () => {
         setQuantityGroups(
@@ -292,7 +298,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, onClose, 
 
                     <div className="flex gap-3 w-full items-center pb-1">
                         <label htmlFor="Price" className={postOrPut == "PUT" ? "" : "hidden"}>Price:</label>
-                        <input autoComplete='off' type="number" value={price} onChange={((e) => { setPrice(Number(e.target.value)) })} className={`${postOrPut == "PUT" ? "" : "hidden"} border rounded-lg p-1 w-1/10`} />
+                        <input autoComplete='off' id="Price" type="number" value={price} onChange={((e) => { setPrice(Number(e.target.value)) })} className={`${postOrPut == "PUT" ? "" : "hidden"} border rounded-lg p-1 w-1/10`} />
                     </div>
 
                     <div className="flex gap-3 items-center pb-1">

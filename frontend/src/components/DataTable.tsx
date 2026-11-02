@@ -34,7 +34,7 @@ export const DataTable = () => {
             .then((data) => {
                 setOrderData(data.items);
             }).catch((err) => {
-                console.error(err);
+                alert(`Error: ${err}`)
             })
     }
 
@@ -50,6 +50,8 @@ export const DataTable = () => {
                 var orderDataCopy: Order[] = [...orderData];
 
                 setOrderData(orderDataCopy.filter((_, index) => orderDataCopy[index].id !== id));
+            }).catch((err) => {
+                alert(`Error: ${err}`)
             })
     }
 
@@ -102,7 +104,7 @@ export const DataTable = () => {
                                     <th>{new Date(order.createdAt).toLocaleDateString("en-GB")}</th>
                                     <th>{new Date(order.deadline).toLocaleDateString("en-GB")}</th>
                                     <th>
-                                        <select name="statusSelect" className='bg-[#171717] border p-3' id="statusSelect" value={order.status} onChange={async (e) => {
+                                        <select name="statusSelect" className='bg-[#171717] border p-3' id={`statusSelect-${index}`} value={order.status} onChange={async (e) => {
                                             try {
                                                 const payload: EditOrder = {
                                                     name: order.name,
@@ -113,10 +115,7 @@ export const DataTable = () => {
                                                     status: Number(e.target.value)
                                                 }
 
-                                                var orderDataCopy: Order[] = [...orderData];
-                                                orderDataCopy[index].status = Number(e.target.value);
-                                                setOrderData(orderDataCopy);
-
+                                                
                                                 await fetch(`${apiUrl}/${order.id}`, {
                                                     method: "PUT",
                                                     headers: {
@@ -124,6 +123,14 @@ export const DataTable = () => {
                                                         'X-api-key': `${Cookies.get('x-api-key')}`,
                                                     },
                                                     body: JSON.stringify(payload)
+                                                }).then((res) => {
+                                                    if(res.ok){
+                                                        var orderDataCopy: Order[] = [...orderData];
+                                                        orderDataCopy[index].status = Number(e.target.value);
+                                                        setOrderData(orderDataCopy);
+                                                    }
+                                                }).catch((err) => {
+                                                    alert(`Error: ${err}`)
                                                 })
 
                                             } catch (e) {
