@@ -2,7 +2,7 @@ import './App.css'
 import Cookies from 'js-cookie'
 import {ApiKeyForm} from './components/ApiKeyForm'
 import { DataTable } from './components/DataTable'
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 function App() {
   function handleApiKeyChange(){
