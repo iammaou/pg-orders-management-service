@@ -164,7 +164,7 @@ export const DataTable = () => {
                     </tbody>
                 </table>
             </div>
-            <OrderForm dataTableFormShown={dataTableFormShown} postOrPut={postOrPut} selectedId={selectedId} onClose={() => setDataTableFormShown(false)} />
+            <OrderForm dataTableFormShown={dataTableFormShown} postOrPut={postOrPut} selectedId={selectedId} onClose={() => setDataTableFormShown(false)} orderData={orderData} onSuccess={(data:Order[]) => {setOrderData(data)}}/>
         </div>
     )
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { type NewOrder, type NewQuantityGroup, type EditOrder } from "../types/Interfaces";
+import { type NewOrder, type NewQuantityGroup, type EditOrder, type Order } from "../types/Interfaces";
 import { apiUrl } from "./DataTable";
 import Cookies from 'js-cookie'
 
@@ -7,10 +7,12 @@ interface props {
     dataTableFormShown: boolean,
     postOrPut: "POST" | "PUT",
     selectedId: string,
-    onClose: () => void
+    onClose: () => void,
+    onSuccess: (data:Order[]) => void,
+    orderData: Order[]
 }
 
-export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, onClose }: props) => {
+export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, onClose, onSuccess, orderData }: props) => {
     const [quantityGroups, setQuantityGroups] = useState<NewQuantityGroup[]>(
         [
             {
@@ -119,7 +121,14 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, onClose }
                 if (!response.ok) {
                     alert(`Failed to send data!`);
                 } else {
-                    window.location.reload();
+                    const data:Order = await response.json();
+
+                    var newOrderArray:Order[] = [...orderData];
+                    newOrderArray.push(data);
+
+                    onSuccess(newOrderArray);
+                    resetState();
+                    onClose();
                 }
 
 
