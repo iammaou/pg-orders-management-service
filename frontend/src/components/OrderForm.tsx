@@ -228,7 +228,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, onClose }
                 <form onSubmit={handleSubmit} className="text-xl grid">
                     <div className="flex justify-center items-center gap-3 pb-3">
                         <label htmlFor="Name" className="">Name:</label>
-                        <input type="text" className="border rounded-lg p-1" id="Name" name="Name" placeholder="P&G" value={name} onChange={(e) => { setName(e.target.value) }} required />
+                        <input autoComplete='off' type="text" className="border rounded-lg p-1" id="Name" name="Name" placeholder="P&G" value={name} onChange={(e) => { setName(e.target.value) }} required />
                     </div>
 
                     {/* Quantity Groups */}
@@ -239,7 +239,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, onClose }
                                     <div className="flex gap-5 pb-1">
                                         <div className="flex gap-3 items-center w-1/3">
                                             <label htmlFor={`quantityGroup-${index}`}>Group:</label>
-                                            <input type="text" className="border rounded-lg p-1 w-full" id={`quantityGroup-${index}`} name={`quantityGroup-${index}`} value={quantityGroups[index].groupKey} onChange={(e) => { quantityGroupValueHelper(index, e.target.value) }} required placeholder="129" />
+                                            <input autoComplete='off' type="text" className="border rounded-lg p-1 w-full" id={`quantityGroup-${index}`} name={`quantityGroup-${index}`} value={quantityGroups[index].groupKey} onChange={(e) => { quantityGroupValueHelper(index, e.target.value) }} required placeholder="129" />
                                         </div>
                                         <div className="flex gap-2">
                                             <button className="border rounded-lg w-10 hover:bg-white hover:text-[#1f1f1f]" type="button" onClick={() => { modifyQuantityGroupAmount() }}>+</button>
@@ -255,8 +255,8 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, onClose }
                                                     <div className="flex gap-5">
                                                         <div className="flex gap-3 items-center w-1/4">
                                                             <label htmlFor={`size-${jndex}`}>Size:</label>
-                                                            <input type="text" id={`size-${jndex}`} className="border rounded-lg p-1 w-full" name={`size-${jndex}`} value={quantityGroups[index].quantities[jndex].size} onChange={(e) => { SizeValueHelper(index, jndex, e.target.value) }} required placeholder="XL" />
-                                                            <input className="border rounded-lg p-1 w-full" type="number" id={`quantity-${jndex}`} name={`quantity-${jndex}`} value={quantityGroups[index].quantities[jndex].quantity == 0 ? "" : quantityGroups[index].quantities[jndex].quantity} onChange={(e) => { SizeValueHelper(index, jndex, undefined, Number(e.target.value)) }} required placeholder="3" />
+                                                            <input autoComplete='off' type="text" id={`size-${jndex}`} className="border rounded-lg p-1 w-full" name={`size-${jndex}`} value={quantityGroups[index].quantities[jndex].size} onChange={(e) => { SizeValueHelper(index, jndex, e.target.value) }} required placeholder="XL" />
+                                                            <input autoComplete='off' className="border rounded-lg p-1 w-full" type="number" id={`quantity-${jndex}`} name={`quantity-${jndex}`} value={quantityGroups[index].quantities[jndex].quantity == 0 ? "" : quantityGroups[index].quantities[jndex].quantity} onChange={(e) => { SizeValueHelper(index, jndex, undefined, Number(e.target.value)) }} required placeholder="3" />
                                                         </div>
                                                         <div className="flex gap-2">
                                                             <button className="border rounded-lg w-10 hover:bg-white hover:text-[#1f1f1f]" type="button" onClick={() => { modifyQuantityAmout(index) }}>+</button>
@@ -275,15 +275,15 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, onClose }
 
                     <div className="flex gap-3 w-1/4 items-center pb-1">
                         <label htmlFor="CreatedAt" className={postOrPut == "PUT" ? "" : "hidden"}>CreatedAt:</label>
-                        <input type="datetime-local" name="CreatedAt" id="CreatedAt" value={createdAt} className={`${postOrPut == "PUT" ? "" : "hidden"} border rounded-lg w-full p-1`} readOnly />
+                        <input autoComplete='off' type="datetime-local" name="CreatedAt" id="CreatedAt" value={createdAt} className={`${postOrPut == "PUT" ? "" : "hidden"} border rounded-lg w-full p-1`} readOnly />
 
                         <label htmlFor="Deadline">Deadline:</label>
-                        <input type="datetime-local" name="Deadline" id="Deadline" value={deadline} onChange={(e) => { setDeadline(e.target.value) }} required className="border rounded-lg w-full p-1"/>
+                        <input autoComplete='off' type="datetime-local" name="Deadline" id="Deadline" value={deadline} onChange={(e) => { setDeadline(e.target.value) }} required className="border rounded-lg w-full p-1"/>
                     </div>
 
                     <div className="flex gap-3 w-full items-center pb-1">
                         <label htmlFor="Price" className={postOrPut == "PUT" ? "" : "hidden"}>Price:</label>
-                        <input type="number" value={price} onChange={((e) => { setPrice(Number(e.target.value)) })} className={`${postOrPut == "PUT" ? "" : "hidden"} border rounded-lg p-1 w-1/10`} />
+                        <input autoComplete='off' type="number" value={price} onChange={((e) => { setPrice(Number(e.target.value)) })} className={`${postOrPut == "PUT" ? "" : "hidden"} border rounded-lg p-1 w-1/10`} />
                     </div>
 
                     <div className="flex gap-3 items-center pb-1">
