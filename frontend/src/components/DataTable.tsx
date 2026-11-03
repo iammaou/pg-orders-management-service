@@ -113,12 +113,11 @@ export const DataTable = () => {
                         await apiFetch(order.id, {method: "PUT", body: JSON.stringify(payload)}).then((res) => {
                           if (!res.ok) {
                             alert(`Edit error: ${res.status}`);
+                            setOrderData(prev => [...prev]);
                             return;
                           }
 
-                          var orderDataCopy: Order[] = [...orderData];
-                          orderDataCopy[index].status = newStatus;
-                          setOrderData(orderDataCopy);
+                          setOrderData(prev => prev.map(o => o.id === order.id ? { ...o, status: newStatus} : o));
                         }).catch((err) => {
                           alert(`Error: ${err}`)
                         })

@@ -7,7 +7,7 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
         ...options,
         headers: {
             'Content-Type': 'application/json',
-            'X-api-key': Cookies.get('x-api-key') ?? '',
+            'x-api-key': Cookies.get('x-api-key') ?? '',
             ...options.headers,
         }
     });

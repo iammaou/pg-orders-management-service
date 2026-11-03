@@ -6,7 +6,7 @@ import { useState } from 'react';
 
 function App() {
   function handleApiKeyChange(){
-    Cookies.remove('x-api-key');
+    Cookies.remove('x-api-key', {path: '/'});
 
     setIsApiKeySet(false);
   }
