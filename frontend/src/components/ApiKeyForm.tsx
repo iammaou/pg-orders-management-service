@@ -59,9 +59,9 @@ export const ApiKeyForm = ({ onSuccess }: props) => {
                   }
                 }
 
-                onSuccess()
-                handleSaveKey(apiKeyInput)
-              })
+                handleSaveKey(apiKeyInput.trim());
+                onSuccess();
+              }).catch(err => alert(`Network error: ${err}`))
             }
           }}
           className="border border-[#980b17] rounded-lg bg-[#e81123] h-1/20 px-4 hover:bg-[#201c1c]"
