@@ -22,8 +22,7 @@ export const DataTable = () => {
   async function getOrders() {
     await apiFetch("", {method: 'GET'}).then((res) => {
         if (!res.ok) {
-          alert(`Get failed: ${res.status}`);
-          return;
+          throw new Error(`Get failed: ${res.status}`);
         }
 
         return res.json();

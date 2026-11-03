@@ -157,9 +157,9 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, onClose, 
           .then(data => {
             setName(data.name);
             setQuantityGroups(data.quantityGroups);
-            setCreatedAt(data.createdAt);
+            setCreatedAt(data.createdAt.slice(0, 16));
             setOrderStatus(data.status);
-            setDeadline(data.deadline);
+            setDeadline(data.deadline.slice(0, 16));
             setPrice(data.totalPrice);
           })
           .catch((err) => {
