@@ -1,7 +1,7 @@
 import Cookies from 'js-cookie'
 import '../App.css'
 import { useState } from 'react'
-import { apiUrl } from './DataTable'
+import { apiFetch } from '../apiFetch'
 
 interface props {
   onSuccess: () => void
@@ -38,11 +38,7 @@ export const ApiKeyForm = ({ onSuccess }: props) => {
         <button
           onClick={async () => {
             if (apiKeyInput.trim() !== '') {
-              await fetch(apiUrl, {
-                headers: {
-                  'x-api-key': apiKeyInput.trim(),
-                },
-              }).then((res) => {
+              await apiFetch("", {headers: {'x-api-key': apiKeyInput.trim()}}).then((res) => {
                 if (!res.ok) {
                   switch (res.status) {
                     case 401:

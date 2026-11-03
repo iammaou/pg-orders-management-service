@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import { type NewOrder, type NewQuantityGroup, type EditOrder, type Order } from "../types/Interfaces";
-import { apiUrl } from "./DataTable";
-import Cookies from 'js-cookie'
+import { apiFetch } from "../apiFetch";
 
 interface props {
   dataTableFormShown: boolean,
@@ -50,33 +49,38 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, onClose, 
       }])
     }
   }
+
   const modifyQuantityAmout = (index: number, jndex?: number) => {
-
-    var newQuantityGroups = [...quantityGroups];
-
     if (jndex != undefined && quantityGroups[index].quantities.length > 1) {
-      newQuantityGroups[index].quantities = newQuantityGroups[index].quantities.filter((_, j) => j !== jndex)
-    } else if (jndex == undefined) {
-      newQuantityGroups[index].quantities.push(
-        {
-          size: '',
-          quantity: 0
+      setQuantityGroups(prev => prev.map((group, i) => {
+        if (i === index) {
+          return {
+            ...group,
+            quantities: group.quantities.filter((_, j) => j !== jndex)
+          };
+        } else {
+          return group;
         }
-      )
+      }));
+    } else if (jndex === undefined) {
+      setQuantityGroups(prev => prev.map((group, i) => {
+        if (i === index) {
+          return {
+            ...group,
+            quantities: [
+              ...group.quantities, { size: '', quantity: 0 }
+            ]
+          }
+        }
+        else {
+          return group;
+        }
+      }))
     }
-
-    setQuantityGroups(newQuantityGroups);
   }
 
   async function sendData(payload: NewOrder, postOrPut: "POST" | "PUT", id?: string) {
-    return await fetch(!id ? apiUrl : apiUrl + `/${id}`, {
-      method: postOrPut.toUpperCase(),
-      headers: {
-        'Content-Type': 'application/json',
-        'X-api-key': `${Cookies.get('x-api-key')}`
-      },
-      body: JSON.stringify(payload)
-    });
+    return await apiFetch(!id ? "" : id, {method:postOrPut.toUpperCase(), body: JSON.stringify(payload)});
   }
 
   const handleSubmit = async (e: React.SubmitEvent) => {
@@ -142,17 +146,8 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, onClose, 
 
   useEffect(() => {
     if (postOrPut == "PUT" && selectedId) {
-      console.log(`${apiUrl}/${selectedId}`)
-
       async function getData(id: string) {
-        await fetch(`${apiUrl}/${id}`, {
-          method: "GET",
-          headers: {
-            'Content-Type': 'application/json',
-            'X-api-key': `${Cookies.get('x-api-key')}`
-          }
-        })
-          .then(res => {
+        await apiFetch(id, {method:'GET'}).then(res => {
             if (!res.ok) {
               throw new Error(`GET failed: ${res.status}`)
             }
@@ -162,7 +157,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, onClose, 
           .then(data => {
             setName(data.name);
             setQuantityGroups(data.quantityGroups);
-            setCreatedAt(createdAt);
+            setCreatedAt(data.createdAt);
             setOrderStatus(data.status);
             setDeadline(data.deadline);
             setPrice(data.totalPrice);

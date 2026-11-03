@@ -3,8 +3,7 @@ import { useEffect, useState } from 'react'
 import { OrderForm } from './OrderForm';
 import { type EditOrder, type Order } from '../types/Interfaces'
 import "../App.css"
-
-export const apiUrl: string = "http://localhost:8080/api/Order";
+import { apiFetch } from '../apiFetch';
 
 export const OrderStatusMap: Record<number, string> = {
   0: 'Created',
@@ -21,14 +20,7 @@ export const DataTable = () => {
   const [selectedId, setSelectedId] = useState<string>('');
 
   async function getOrders() {
-    await fetch(apiUrl, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-api-key': `${Cookies.get('x-api-key')}`,
-      },
-    })
-      .then((res) => {
+    await apiFetch("", {method: 'GET'}).then((res) => {
         if (!res.ok) {
           alert(`Get failed: ${res.status}`);
           return;
@@ -44,13 +36,7 @@ export const DataTable = () => {
   }
 
   async function deleteOrder(id: string) {
-    await fetch(`${apiUrl}/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-api-key': `${Cookies.get('x-api-key')}`
-      }
-    }).then((res) => {
+    await apiFetch(id, {method: 'DELETE'}).then((res) => {
       if (!res.ok) {
         alert(`Delete failed: ${res.status}`)
         return
@@ -124,15 +110,7 @@ export const DataTable = () => {
                           status: newStatus
                         }
 
-
-                        await fetch(`${apiUrl}/${order.id}`, {
-                          method: "PUT",
-                          headers: {
-                            'Content-Type': 'application/json',
-                            'X-api-key': `${Cookies.get('x-api-key')}`,
-                          },
-                          body: JSON.stringify(payload)
-                        }).then((res) => {
+                        await apiFetch(order.id, {method: "PUT", body: JSON.stringify(payload)}).then((res) => {
                           if (!res.ok) {
                             alert(`Edit error: ${res.status}`);
                             return;
