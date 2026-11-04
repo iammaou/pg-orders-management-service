@@ -31,6 +31,8 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
   const [createdAt, setCreatedAt] = useState<string>('');
   const [orderStatus, setOrderStatus] = useState<number>(0);
 
+  const [submitting, setSubmitting] = useState<boolean>(false);
+
   const quantityGroupValueHelper = (index: number, groupName: string) => {
     setQuantityGroups(prev => prev.map((g, i) => i === index ? { ...g, groupKey: groupName } : g));
   }
@@ -86,62 +88,67 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
 
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
+    
+    if(!submitting){
+      setSubmitting(true);
 
-    if (postOrPut == "POST") {
-      const payload: NewOrder = {
-        name: name,
-        deadline: deadline,
-        totalPrice: price == undefined ? 0 : price,
-        quantityGroups: quantityGroups
-      }
-
-      try {
-        const response = await sendData(payload, postOrPut);
-
-        if (!response.ok) {
-          alert(`Failed to send data!`);
-        } else {
-          const data: Order = await response.json();
-
-          var newOrders: Order[] = [...orderData];
-          newOrders.push(data);
-
-          onSuccess(newOrders);
-          resetState();
-          onClose();
+      if (postOrPut == "POST") {
+        const payload: NewOrder = {
+          name: name,
+          deadline: deadline,
+          totalPrice: price == undefined ? 0 : price,
+          quantityGroups: quantityGroups
         }
-
-
-      } catch (e) {
-        console.error(`Error occured: ${e}`)
-      }
-    } else {
-      const payload: EditOrder = {
-        name: name,
-        deadline: deadline,
-        totalPrice: price,
-        quantityGroups: quantityGroups,
-        createdAt: createdAt,
-        status: orderStatus
-      }
-
-      try {
-        const response = await sendData(payload, postOrPut, selectedId);
-
-        if (!response.ok) {
-          alert("Failed to send data!");
-        } else {
-          const data: Order = await response.json();
-
-          const newOrders: Order[] = orderData.map(order => order.id === selectedId ? data : order);
-
-          onSuccess(newOrders);
-          resetState();
-          onClose();
+  
+        try {
+          const response = await sendData(payload, postOrPut);
+  
+          if (!response.ok) {
+            alert(`Failed to send data!`);
+          } else {
+            const data: Order = await response.json();
+  
+            var newOrders: Order[] = [...orderData];
+            newOrders.push(data);
+  
+            onSuccess(newOrders);
+            resetState();
+            onClose();
+          }
+  
+  
+        } catch (e) {
+          console.error(`Error occured: ${e}`)
         }
-      } catch (e) {
-        console.error(`Error occured: ${e}`);
+      } else {
+        const payload: EditOrder = {
+          name: name,
+          deadline: deadline,
+          totalPrice: price,
+          quantityGroups: quantityGroups,
+          createdAt: createdAt,
+          status: orderStatus
+        }
+  
+        try {
+          const response = await sendData(payload, postOrPut, selectedId);
+  
+          if (!response.ok) {
+            alert("Failed to send data!");
+          } else {
+            const data: Order = await response.json();
+  
+            const newOrders: Order[] = orderData.map(order => order.id === selectedId ? data : order);
+  
+            onSuccess(newOrders);
+            resetState();
+            onClose();
+          }
+        } catch (e) {
+          console.error(`Error occured: ${e}`);
+        }
       }
+      setSubmitting(false);
     }
   }
 
@@ -246,7 +253,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
                             <div className="flex gap-3 items-center w-1/4">
                               <label htmlFor={`size-${jndex}`}>Size:</label>
                               <input autoComplete='off' type="text" id={`size-${jndex}`} className="border rounded-lg p-1 w-full" name={`size-${jndex}`} value={quantityGroups[index].quantities[jndex].size} onChange={(e) => { setSize(index, jndex, e.target.value) }} required placeholder="XL" />
-                              <input autoComplete='off' className="border rounded-lg p-1 w-full" type="number" id={`quantity-${jndex}`} name={`quantity-${jndex}`} value={quantityGroups[index].quantities[jndex].quantity == 0 ? "" : quantityGroups[index].quantities[jndex].quantity} onChange={(e) => { setQuantity(index, jndex, Number(e.target.value)) }} required placeholder="3" />
+                              <input autoComplete='off' className="border rounded-lg p-1 w-full" type="number" id={`quantity-${jndex}`} name={`quantity-${jndex}`} value={quantityGroups[index].quantities[jndex].quantity == 0 ? "" : quantityGroups[index].quantities[jndex].quantity} onChange={(e) => { setQuantity(index, jndex, Number(e.target.valueAsNumber)) }} required placeholder="3" />
                             </div>
                             <div className="flex gap-2">
                               <button className="border rounded-lg w-10 hover:bg-white hover:text-[#1f1f1f]" type="button" onClick={() => { modifyQuantityAmout(index) }}>+</button>

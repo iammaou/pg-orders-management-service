@@ -5,7 +5,7 @@ import { DataTable } from './components/DataTable'
 import { useState } from 'react';
 
 function App() {
-  function handleApiKeyChange(){
+  const handleApiKeyChange = () => {
     Cookies.remove('x-api-key', {path: '/'});
 
     setIsApiKeySet(false);
@@ -27,7 +27,7 @@ function App() {
         <img src="./pg-logo.png" alt="p&g logo" className='w-1/28'/>
         <button onClick={handleApiKeyChange} className={`${Cookies.get('x-api-key') == undefined ? "hidden" : ""} border border-[#980b17] rounded-lg bg-[#e81123] px-4 hover:bg-[#980b17]`}>Sign Out</button>
       </header>
-      <DataTable/>
+      <DataTable onApiKeyReset={handleApiKeyChange}/>
     </div>
   )
 }

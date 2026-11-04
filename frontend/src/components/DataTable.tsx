@@ -5,6 +5,10 @@ import { type EditOrder, type Order } from '../types/Interfaces'
 import "../App.css"
 import { apiFetch } from '../apiFetch';
 
+interface props {
+  onApiKeyReset: () => void
+}
+
 export const OrderStatusMap: Record<number, string> = {
   0: 'Created',
   1: 'Ordered',
@@ -13,22 +17,22 @@ export const OrderStatusMap: Record<number, string> = {
   4: 'Delivered',
 };
 
-export const DataTable = () => {
+export const DataTable = ({onApiKeyReset}:props) => {
   const [dataTableFormShown, setDataTableFormShown] = useState<boolean>(false);
   const [orderData, setOrderData] = useState<Order[]>([]);
   const [postOrPut, setPostOrPut] = useState<"POST" | "PUT">("POST");
   const [selectedId, setSelectedId] = useState<string>('');
 
   async function getOrders() {
-    await apiFetch("", {method: 'GET'}).then((res) => {
-        if (!res.ok && res.status !== 401) {
-          throw new Error(`Get failed: ${res.status}`);
-        } else if(res.status === 401){
-          Cookies.remove("x-api-key", {path:'/'})
-        }
+    await apiFetch("", { method: 'GET' }).then((res) => {
+      if (!res.ok && res.status !== 401) {
+        throw new Error(`Get failed: ${res.status}`);
+      } else if (res.status === 401) {
+        onApiKeyReset();
+      }
 
-        return res.json();
-      })
+      return res.json();
+    })
       .then((data) => {
         setOrderData(data.items);
       }).catch((err) => {
@@ -37,7 +41,7 @@ export const DataTable = () => {
   }
 
   async function deleteOrder(id: string) {
-    await apiFetch(id, {method: 'DELETE'}).then((res) => {
+    await apiFetch(id, { method: 'DELETE' }).then((res) => {
       if (!res.ok) {
         alert(`Delete failed: ${res.status}`)
         return
@@ -79,9 +83,9 @@ export const DataTable = () => {
           <tbody>
             {orderData.map((order, index) => {
               return (
-                <tr key={order.id} className={`${(index + 2) % 2 == 0 ? "bg-[#171717]" : ""} border-b`}>
-                  <th>{order.name}</th>
-                  <th>{order.quantityGroups.map((group) => {
+                <tr key={order.id} className={`${(index + 2) % 2 == 0 ? "bg-[#171717]" : ""} border-b text-center`}>
+                  <td>{order.name}</td>
+                  <td>{order.quantityGroups.map((group) => {
                     return (
                       <div key={group.id} className='flex gap-1 justify-center'>
                         <h4>{group.groupKey}</h4>
@@ -94,53 +98,53 @@ export const DataTable = () => {
                         })}</div>
                       </div>
                     );
-                  })}</th>
-                  <th>{new Date(order.createdAt).toLocaleDateString("en-GB")}</th>
-                  <th>{new Date(order.deadline).toLocaleDateString("en-GB")}</th>
-                  <th>
-                    <select name="statusSelect" className='bg-[#171717] border p-3' id={`statusSelect-${index}`} value={order.status} onChange={async (e) => {
-                      try {
-                        const newStatus: number = Number(e.target.value);
+                  })}</td>
+                  <td>{new Date(order.createdAt).toLocaleDateString("en-GB")}</td>
+                  <td>{new Date(order.deadline).toLocaleDateString("en-GB")}</td>
+                  <td>
+                    <select name="statusSelect" className='bg-[#171717] border p-3' id={`statusSelect-${index}`} value={order.status} onChange={
+                      async (e) => {
+                        try {
+                          const newStatus: number = Number(e.target.value);
 
-                        const payload: EditOrder = {
-                          name: order.name,
-                          deadline: order.deadline,
-                          totalPrice: order.totalPrice,
-                          quantityGroups: order.quantityGroups,
-                          createdAt: order.createdAt,
-                          status: newStatus
-                        }
-
-                        await apiFetch(order.id, {method: "PUT", body: JSON.stringify(payload)}).then((res) => {
-                          if (!res.ok) {
-                            alert(`Edit error: ${res.status}`);
-                            setOrderData(prev => [...prev]);
-                            return;
+                          const payload: EditOrder = {
+                            name: order.name,
+                            deadline: order.deadline,
+                            totalPrice: order.totalPrice,
+                            quantityGroups: order.quantityGroups,
+                            createdAt: order.createdAt,
+                            status: newStatus
                           }
 
-                          setOrderData(prev => prev.map(o => o.id === order.id ? { ...o, status: newStatus} : o));
-                        }).catch((err) => {
-                          alert(`Error: ${err}`)
-                        })
+                          await apiFetch(order.id, { method: "PUT", body: JSON.stringify(payload) }).then((res) => {
+                            if (!res.ok) {
+                              alert(`Edit error: ${res.status}`);
+                              return;
+                            }
 
-                      } catch (e) {
-                        alert(`Error occured: ${e}`)
-                      }
-                    }}>
+                            setOrderData(prev => prev.map(o => o.id === order.id ? { ...o, status: newStatus } : o));
+                          }).catch((err) => {
+                            alert(`Error: ${err}`)
+                          })
+
+                        } catch (e) {
+                          alert(`Error occured: ${e}`)
+                        }
+                      }}>
                       <option value="0">Created</option>
                       <option value="1" className='bg-[#1f1f1f]'>Ordered</option>
                       <option value="2">Finished</option>
                       <option value="3" className='bg-[#1f1f1f]'>Reported</option>
                       <option value="4">Delivered</option>
                     </select>
-                  </th>
-                  <th>{`${order.totalPrice}€`}</th>
-                  <th className='w-full h-full'>
+                  </td>
+                  <td>{`${order.totalPrice}€`}</td>
+                  <td className='w-full h-full'>
                     <div className='flex'>
                       <button onClick={() => handleOrderForm("PUT", order.id)}><img src='./icon-edit.png' alt='edit icon' className='w-3/6' /></button>
                       <button onClick={() => { deleteOrder(order.id) }}><img src='./icon-delete.png' alt='delete icon' className='w-3/6' /></button>
                     </div>
-                  </th>
+                  </td>
                 </tr>
               );
             })}
