@@ -21,8 +21,10 @@ export const DataTable = () => {
 
   async function getOrders() {
     await apiFetch("", {method: 'GET'}).then((res) => {
-        if (!res.ok) {
+        if (!res.ok && res.status !== 401) {
           throw new Error(`Get failed: ${res.status}`);
+        } else if(res.status === 401){
+          Cookies.remove("x-api-key", {path:'/'})
         }
 
         return res.json();
@@ -159,7 +161,7 @@ export const DataTable = () => {
           </tbody>
         </table>
       </div>
-      <OrderForm dataTableFormShown={dataTableFormShown} postOrPut={postOrPut} selectedId={selectedId} onClose={() => setDataTableFormShown(false)} orderData={orderData} onSuccess={(data: Order[]) => { setOrderData(data) }} />
+      <OrderForm dataTableFormShown={dataTableFormShown} postOrPut={postOrPut} selectedId={selectedId} setSelectedId={() => setSelectedId("")} onClose={() => setDataTableFormShown(false)} orderData={orderData} onSuccess={(data: Order[]) => { setOrderData(data) }} />
     </div>
   )
 }

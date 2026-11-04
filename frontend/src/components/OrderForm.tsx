@@ -8,10 +8,11 @@ interface props {
   selectedId: string,
   onClose: () => void,
   onSuccess: (data: Order[]) => void,
-  orderData: Order[]
+  orderData: Order[],
+  setSelectedId: () => void
 }
 
-export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, onClose, onSuccess, orderData }: props) => {
+export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelectedId, onClose, onSuccess, orderData }: props) => {
   const [quantityGroups, setQuantityGroups] = useState<NewQuantityGroup[]>(
     [
       {
@@ -208,7 +209,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, onClose, 
           type="button"
           onClick={() => {
             resetState();
-
+            setSelectedId();
             onClose();
           }}
           className="absolute top-0 right-0 border rounded-lg px-2 bg-[#e81123] border-[#980b17] hover:bg-[#980b17]"
