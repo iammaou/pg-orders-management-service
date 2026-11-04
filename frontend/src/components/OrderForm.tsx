@@ -93,9 +93,17 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
       setSubmitting(true);
 
       if (postOrPut == "POST") {
+        const baseDate = deadline === '' ? new Date() : new Date(deadline);
+
+        if(deadline === ''){
+          baseDate.setDate(baseDate.getDate() + 14);
+        }
+        const pad = (num: number) => String(num).padStart(2, '0');
+        const finalDeadline = `${baseDate.getFullYear()}-${pad(baseDate.getMonth() + 1)}-${pad(baseDate.getDate())}T${pad(baseDate.getHours())}:${pad(baseDate.getMinutes())}`;
+
         const payload: NewOrder = {
           name: name,
-          deadline: deadline,
+          deadline: finalDeadline,
           totalPrice: price == undefined ? 0 : price,
           quantityGroups: quantityGroups
         }
@@ -275,7 +283,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
             <input autoComplete='off' type="datetime-local" name="CreatedAt" id="CreatedAt" value={createdAt} className={`${postOrPut == "PUT" ? "" : "hidden"} border rounded-lg w-full p-1`} readOnly />
 
             <label htmlFor="Deadline">Deadline:</label>
-            <input autoComplete='off' type="datetime-local" name="Deadline" id="Deadline" value={deadline} onChange={(e) => { setDeadline(e.target.value) }} required className="border rounded-lg w-full p-1" />
+            <input autoComplete='off' type="datetime-local" name="Deadline" id="Deadline" value={deadline} onChange={(e) => { setDeadline(e.target.value) }} className="border rounded-lg w-full p-1" />
           </div>
 
           <div className="flex gap-3 w-full items-center pb-1">
