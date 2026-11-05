@@ -22,9 +22,11 @@ export const DataTable = ({onApiKeyReset}:props) => {
   const [orderData, setOrderData] = useState<Order[]>([]);
   const [postOrPut, setPostOrPut] = useState<"POST" | "PUT">("POST");
   const [selectedId, setSelectedId] = useState<string>('');
+  const [selectedPage, setSelectedPage] = useState<number>(1);
+  const [numberOfPages, setNumberOfPages] = useState<number>(1);
 
   async function getOrders() {
-    await apiFetch("", { method: 'GET' }).then((res) => {
+    await apiFetch(`?Page=${selectedPage}&SortBy=deadline`, { method: 'GET' }).then((res) => {
       if (!res.ok && res.status !== 401) {
         throw new Error(`Get failed: ${res.status}`);
       } else if (res.status === 401) {
@@ -34,6 +36,8 @@ export const DataTable = ({onApiKeyReset}:props) => {
       return res.json();
     })
       .then((data) => {
+        setSelectedPage(data.page);
+        setNumberOfPages(Math.floor(data.totalCount/data.pageSize)+1);
         setOrderData(data.items);
       }).catch((err) => {
         alert(`Error: ${err}`)
@@ -63,7 +67,7 @@ export const DataTable = ({onApiKeyReset}:props) => {
 
   useEffect(() => {
     getOrders();
-  }, []);
+  }, [selectedPage]);
 
   return (
     <div className={`${Cookies.get('x-api-key') == undefined ? "hidden" : ""} flex flex-col w-full pt-10 items-center`}>
@@ -166,6 +170,11 @@ export const DataTable = ({onApiKeyReset}:props) => {
         </table>
       </div>
       <OrderForm dataTableFormShown={dataTableFormShown} postOrPut={postOrPut} selectedId={selectedId} setSelectedId={() => setSelectedId("")} onClose={() => setDataTableFormShown(false)} orderData={orderData} onSuccess={(data: Order[]) => { setOrderData(data) }} />
+      <div className='flex gap-3 pb-10 pt-1 text-2xl'>
+        <button onClick={() => {setSelectedPage(selectedPage === 1 ? selectedPage : selectedPage - 1)}}>{"<"}</button>
+        <p>{`${selectedPage}/${numberOfPages}`}</p>
+        <button onClick={() => {setSelectedPage(selectedPage === numberOfPages ? selectedPage : selectedPage + 1)}}>{">"}</button>
+      </div>
     </div>
   )
 }
