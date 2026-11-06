@@ -24,9 +24,12 @@ export const DataTable = ({onApiKeyReset}:props) => {
   const [selectedId, setSelectedId] = useState<string>('');
   const [selectedPage, setSelectedPage] = useState<number>(1);
   const [numberOfPages, setNumberOfPages] = useState<number>(1);
+  const [sortBy, setSortBy] = useState<"createdAt" | "deadline">("createdAt");
+  const [descending, setDescending] = useState<boolean>(false);
+  const [statusFilter, setStatusFilter] = useState<"Created" |"Ordered" |"Finished" |"ReportedAsFinished" |"Delivered" | "null">("null");
 
   async function getOrders() {
-    await apiFetch(`?Page=${selectedPage}&SortBy=deadline`, { method: 'GET' }).then((res) => {
+    await apiFetch(`?Page=${selectedPage}&SortBy=${sortBy}&IsDescending=${descending}${statusFilter === "null" ? "" : "&Status=" + statusFilter}`, { method: 'GET' }).then((res) => {
       if (!res.ok && res.status !== 401) {
         throw new Error(`Get failed: ${res.status}`);
       } else if (res.status === 401) {
@@ -67,7 +70,16 @@ export const DataTable = ({onApiKeyReset}:props) => {
 
   useEffect(() => {
     getOrders();
-  }, [selectedPage]);
+  }, [selectedPage, descending, sortBy]);
+
+  const handleSortChange = (newlySelected:"createdAt" | "deadline") => {
+    if(sortBy === newlySelected){
+      setDescending(!descending);
+    } else {
+      setDescending(false);
+    }
+    setSortBy(newlySelected);
+  }
 
   return (
     <div className={`${Cookies.get('x-api-key') == undefined ? "hidden" : ""} flex flex-col w-full pt-10 items-center`}>
@@ -77,8 +89,20 @@ export const DataTable = ({onApiKeyReset}:props) => {
             <tr className='border-b'>
               <th>Name</th>
               <th>Quantity Groups</th>
-              <th>Created At</th>
-              <th>Deadline</th>
+              <th>
+                <button className='flex gap-1 mx-auto' onClick={() => {handleSortChange("createdAt")}}>
+                  {`Created At`}
+                  <p className={`${sortBy === "createdAt" ? "" : "hidden"} ${descending ? "rotate-180" : ""}`}>{"⏷"}
+                  </p>
+                </button>
+              </th>
+              <th>
+                <button className='flex gap-1 mx-auto' onClick={() => {handleSortChange("deadline")}}>
+                  {`Deadline`}
+                  <p className={`${sortBy === "deadline" ? "" : "hidden"} ${descending ? "rotate-180" : ""}`}>{"⏷"}
+                  </p>
+                </button>
+              </th>
               <th>Status</th>
               <th>Price</th>
               <th></th>
