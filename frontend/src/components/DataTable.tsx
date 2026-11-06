@@ -17,7 +17,7 @@ export const OrderStatusMap: Record<number, string> = {
   4: 'Delivered',
 };
 
-export const DataTable = ({onApiKeyReset}:props) => {
+export const DataTable = ({ onApiKeyReset }: props) => {
   const [dataTableFormShown, setDataTableFormShown] = useState<boolean>(false);
   const [orderData, setOrderData] = useState<Order[]>([]);
   const [postOrPut, setPostOrPut] = useState<"POST" | "PUT">("POST");
@@ -26,7 +26,7 @@ export const DataTable = ({onApiKeyReset}:props) => {
   const [numberOfPages, setNumberOfPages] = useState<number>(1);
   const [sortBy, setSortBy] = useState<"createdAt" | "deadline">("createdAt");
   const [descending, setDescending] = useState<boolean>(false);
-  const [statusFilter, setStatusFilter] = useState<"Created" |"Ordered" |"Finished" |"ReportedAsFinished" |"Delivered" | "null">("null");
+  const [statusFilter, setStatusFilter] = useState<"Created" | "Ordered" | "Finished" | "ReportedAsFinished" | "Delivered" | "null">("null");
 
   async function getOrders() {
     await apiFetch(`?Page=${selectedPage}&SortBy=${sortBy}&IsDescending=${descending}${statusFilter === "null" ? "" : "&Status=" + statusFilter}`, { method: 'GET' }).then((res) => {
@@ -40,7 +40,7 @@ export const DataTable = ({onApiKeyReset}:props) => {
     })
       .then((data) => {
         setSelectedPage(data.page);
-        setNumberOfPages(Math.floor(data.totalCount/data.pageSize)+1);
+        setNumberOfPages(Math.floor(data.totalCount / data.pageSize) + 1);
         setOrderData(data.items);
       }).catch((err) => {
         alert(`Error: ${err}`)
@@ -70,10 +70,10 @@ export const DataTable = ({onApiKeyReset}:props) => {
 
   useEffect(() => {
     getOrders();
-  }, [selectedPage, descending, sortBy]);
+  }, [selectedPage, descending, sortBy, statusFilter]);
 
-  const handleSortChange = (newlySelected:"createdAt" | "deadline") => {
-    if(sortBy === newlySelected){
+  const handleSortChange = (newlySelected: "createdAt" | "deadline") => {
+    if (sortBy === newlySelected) {
       setDescending(!descending);
     } else {
       setDescending(false);
@@ -90,20 +90,39 @@ export const DataTable = ({onApiKeyReset}:props) => {
               <th>Name</th>
               <th>Quantity Groups</th>
               <th>
-                <button className='flex gap-1 mx-auto' onClick={() => {handleSortChange("createdAt")}}>
+                <button className='flex gap-1 mx-auto' onClick={() => { handleSortChange("createdAt") }}>
                   {`Created At`}
                   <p className={`${sortBy === "createdAt" ? "" : "hidden"} ${descending ? "rotate-180" : ""}`}>{"⏷"}
                   </p>
                 </button>
               </th>
               <th>
-                <button className='flex gap-1 mx-auto' onClick={() => {handleSortChange("deadline")}}>
+                <button className='flex gap-1 mx-auto' onClick={() => { handleSortChange("deadline") }}>
                   {`Deadline`}
                   <p className={`${sortBy === "deadline" ? "" : "hidden"} ${descending ? "rotate-180" : ""}`}>{"⏷"}
                   </p>
                 </button>
               </th>
-              <th>Status</th>
+              <th>
+                <select name="filter" id="filter" className='p-1 bg-[#1f1f1f]' onChange={(e) => {
+                  const newStatus = Number(e.target.value);
+                  switch(newStatus){
+                    case 0: setStatusFilter("Created"); break;
+                    case 1: setStatusFilter("Ordered"); break;
+                    case 2: setStatusFilter("Finished"); break;
+                    case 3: setStatusFilter("ReportedAsFinished"); break;
+                    case 4: setStatusFilter("Delivered"); break;
+                    default: setStatusFilter("null"); break;
+                  }
+                }}>
+                  <option value="null">Status</option>
+                  <option value="0">{OrderStatusMap[0]}</option>
+                  <option value="1">{OrderStatusMap[1]}</option>
+                  <option value="2">{OrderStatusMap[2]}</option>
+                  <option value="3">{OrderStatusMap[3]}</option>
+                  <option value="4">{OrderStatusMap[4]}</option>
+                </select>
+              </th>
               <th>Price</th>
               <th></th>
             </tr>
@@ -195,9 +214,9 @@ export const DataTable = ({onApiKeyReset}:props) => {
       </div>
       <OrderForm dataTableFormShown={dataTableFormShown} postOrPut={postOrPut} selectedId={selectedId} setSelectedId={() => setSelectedId("")} onClose={() => setDataTableFormShown(false)} orderData={orderData} onSuccess={(data: Order[]) => { setOrderData(data) }} />
       <div className='flex gap-3 pb-10 pt-1 text-2xl'>
-        <button onClick={() => {setSelectedPage(selectedPage === 1 ? selectedPage : selectedPage - 1)}}>{"<"}</button>
+        <button onClick={() => { setSelectedPage(selectedPage === 1 ? selectedPage : selectedPage - 1) }}>{"<"}</button>
         <p>{`${selectedPage}/${numberOfPages}`}</p>
-        <button onClick={() => {setSelectedPage(selectedPage === numberOfPages ? selectedPage : selectedPage + 1)}}>{">"}</button>
+        <button onClick={() => { setSelectedPage(selectedPage === numberOfPages ? selectedPage : selectedPage + 1) }}>{">"}</button>
       </div>
     </div>
   )
