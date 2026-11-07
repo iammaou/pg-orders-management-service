@@ -12,9 +12,10 @@ interface props {
 export const OrderStatusMap: Record<number, string> = {
   0: 'Created',
   1: 'Ordered',
-  2: 'Finished',
-  3: 'Reported',
-  4: 'Delivered',
+  2: 'Arrived',
+  3: 'Finished',
+  4: 'Reported',
+  5: 'Delivered',
 };
 
 export const DataTable = ({ onApiKeyReset }: props) => {
@@ -26,7 +27,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
   const [numberOfPages, setNumberOfPages] = useState<number>(1);
   const [sortBy, setSortBy] = useState<"createdAt" | "deadline">("createdAt");
   const [descending, setDescending] = useState<boolean>(false);
-  const [statusFilter, setStatusFilter] = useState<"Created" | "Ordered" | "Finished" | "ReportedAsFinished" | "Delivered" | "null">("null");
+  const [statusFilter, setStatusFilter] = useState<"Created" | "Ordered" | "Arrived" | "Finished" | "ReportedAsFinished" | "Delivered" | "null">("null");
 
   async function getOrders() {
     await apiFetch(`?Page=${selectedPage}&SortBy=${sortBy}&IsDescending=${descending}${statusFilter === "null" ? "" : "&Status=" + statusFilter}`, { method: 'GET' }).then((res) => {
@@ -109,9 +110,10 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                   switch(newStatus){
                     case 0: setStatusFilter("Created"); break;
                     case 1: setStatusFilter("Ordered"); break;
-                    case 2: setStatusFilter("Finished"); break;
-                    case 3: setStatusFilter("ReportedAsFinished"); break;
-                    case 4: setStatusFilter("Delivered"); break;
+                    case 2: setStatusFilter("Arrived"); break;
+                    case 3: setStatusFilter("Finished"); break;
+                    case 4: setStatusFilter("ReportedAsFinished"); break;
+                    case 5: setStatusFilter("Delivered"); break;
                     default: setStatusFilter("null"); break;
                   }
                 }}>
@@ -121,6 +123,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                   <option value="2">{OrderStatusMap[2]}</option>
                   <option value="3">{OrderStatusMap[3]}</option>
                   <option value="4">{OrderStatusMap[4]}</option>
+                  <option value="5">{OrderStatusMap[5]}</option>
                 </select>
               </th>
               <th>Price</th>
@@ -180,9 +183,10 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                       }}>
                       <option value="0">Created</option>
                       <option value="1" className='bg-[#1f1f1f]'>Ordered</option>
-                      <option value="2">Finished</option>
-                      <option value="3" className='bg-[#1f1f1f]'>Reported</option>
-                      <option value="4">Delivered</option>
+                      <option value="2">Arrived</option>
+                      <option value="3" className='bg-[#1f1f1f]'>Finished</option>
+                      <option value="4">Reported</option>
+                      <option value="5" className='bg-[#1f1f1f]'>Delivered</option>
                     </select>
                   </td>
                   <td>{`${order.totalPrice}€`}</td>

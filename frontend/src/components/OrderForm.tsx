@@ -302,9 +302,10 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
             >
               <option value="0">Created</option>
               <option value="1">Ordered</option>
-              <option value="2">Finished</option>
-              <option value="3">Reported As Finished</option>
-              <option value="4">Delivered</option>
+              <option value="2">Arrived</option>
+              <option value="3">Finished</option>
+              <option value="4">Reported</option>
+              <option value="5">Delivered</option>
             </select>
           </div>
 

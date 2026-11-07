@@ -4,6 +4,7 @@ public enum OrderStatus
 {
     Created,
     Ordered, 
+    Arrived,
     Finished,
     ReportedAsFinished,
     Delivered,
