@@ -19,51 +19,50 @@ export const ApiKeyForm = ({ onSuccess }: props) => {
   }
 
   return (
-    <div
-      className={`${Cookies.get('x-api-key') != null ? 'hidden' : ''} flex h-screen justify-center`}
-    >
-      <div>
-        <h2 className="text-center font-bold text-5xl mt-30">Welcome!</h2>
-        <input
-          autoComplete="off"
-          type="text"
-          onChange={(e) => {
-            setApiKeyInput(e.target.value)
-          }}
-          value={apiKeyInput}
-          placeholder="1234abcd-1234-1234-1234-123456abcdef"
-          className="bg-[#171717] w-md h-1/20 border p-2 rounded-lg mt-30 mr-5"
-        />
-
-        <button
-          onClick={async () => {
-            if (apiKeyInput.trim() !== '') {
-              await apiFetch("", {headers: {'x-api-key': apiKeyInput.trim()}}).then((res) => {
-                if (!res.ok) {
-                  switch (res.status) {
-                    case 401:
-                      alert(`Wrong API key!.`)
-                      return
-                    case 403:
-                      alert(`Unauthorized access.`)
-                      return
-                    default:
-                      alert(
-                        `Request failed with status code ${res.status}. Try again later.`
-                      )
-                      return
+    <div className='flex w-full pt-30 justify-center text-center'>
+      <div className='flex flex-col w-full justify-center items-center'>
+        <h2 className='text-5xl sm:text-7xl md:text-8xl lg:9xl'>Welcome!</h2>
+        <div className='flex flex-col md:flex-row pt-10 lg:pt-20 w-full justify-center items-center gap-3'>
+          <input
+            autoComplete="off"
+            type="text"
+            onChange={(e) => {
+              setApiKeyInput(e.target.value)
+            }}
+            value={apiKeyInput}
+            placeholder="1234abcd-1234-1234-1234-123456abcdef"
+            className='w-3/4 md:w-1/4 text-center md:text-left white-border py-2'
+          />
+          <button
+            onClick={async () => {
+              if (apiKeyInput.trim() !== '') {
+                await apiFetch("", {headers: {'x-api-key': apiKeyInput.trim()}}).then((res) => {
+                  if (!res.ok) {
+                    switch (res.status) {
+                      case 401:
+                        alert(`Wrong API key!.`)
+                        return
+                      case 403:
+                        alert(`Unauthorized access.`)
+                        return
+                      default:
+                        alert(
+                          `Request failed with status code ${res.status}. Try again later.`
+                        )
+                        return
+                    }
                   }
-                }
 
-                handleSaveKey(apiKeyInput.trim());
-                onSuccess();
-              }).catch(err => alert(`Network error: ${err}`))
-            }
-          }}
-          className="border border-[#980b17] rounded-lg bg-[#e81123] h-1/20 px-4 hover:bg-[#201c1c]"
-        >
-          save
-        </button>
+                  handleSaveKey(apiKeyInput.trim());
+                  onSuccess();
+                }).catch(err => alert(`Network error: ${err}`))
+              }
+            }}
+            className='red-button py-2 px-10'
+          >
+            save
+          </button>
+        </div>
       </div>
     </div>
   )

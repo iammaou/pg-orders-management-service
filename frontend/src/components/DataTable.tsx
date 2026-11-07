@@ -83,29 +83,29 @@ export const DataTable = ({ onApiKeyReset }: props) => {
   }
 
   return (
-    <div className={`${Cookies.get('x-api-key') == undefined ? "hidden" : ""} flex flex-col w-full pt-10 items-center`}>
-      <div className={`border rounded-lg w-5/6 px-10 py-5 ${dataTableFormShown ? "blur-sm pointer-events-none z-0" : ""}`}>
-        <table className='w-full table-fixed'>
+    <div className={`${Cookies.get('x-api-key') == undefined ? "hidden" : ""}`}>
+      <div className={`${dataTableFormShown ? "blur-sm pointer-events-none z-0" : ""}`}>
+        <table>
           <thead>
-            <tr className='border-b'>
+            <tr>
               <th>Name</th>
               <th>Quantity Groups</th>
               <th>
-                <button className='flex gap-1 mx-auto' onClick={() => { handleSortChange("createdAt") }}>
+                <button onClick={() => { handleSortChange("createdAt") }}>
                   {`Created At`}
                   <p className={`${sortBy === "createdAt" ? "" : "hidden"} ${descending ? "rotate-180" : ""}`}>{"⏷"}
                   </p>
                 </button>
               </th>
               <th>
-                <button className='flex gap-1 mx-auto' onClick={() => { handleSortChange("deadline") }}>
+                <button onClick={() => { handleSortChange("deadline") }}>
                   {`Deadline`}
                   <p className={`${sortBy === "deadline" ? "" : "hidden"} ${descending ? "rotate-180" : ""}`}>{"⏷"}
                   </p>
                 </button>
               </th>
               <th>
-                <select name="filter" id="filter" className='p-1 bg-[#1f1f1f]' onChange={(e) => {
+                <select name="filter" id="filter" onChange={(e) => {
                   const newStatus = Number(e.target.value);
                   switch(newStatus){
                     case 0: setStatusFilter("Created"); break;
@@ -133,11 +133,11 @@ export const DataTable = ({ onApiKeyReset }: props) => {
           <tbody>
             {orderData.map((order, index) => {
               return (
-                <tr key={order.id} className={`${(index + 2) % 2 == 0 ? "bg-[#171717]" : ""} border-b text-center`}>
+                <tr key={order.id} className={`${(index + 2) % 2 == 0 ? "bg-[#171717]" : ""}`}>
                   <td>{order.name}</td>
                   <td>{order.quantityGroups.map((group) => {
                     return (
-                      <div key={group.id} className='flex gap-1 justify-center'>
+                      <div key={group.id}>
                         <h4>{group.groupKey}</h4>
                         <div>{group.quantities.map((quantity) => {
                           return (
@@ -152,7 +152,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                   <td>{new Date(order.createdAt).toLocaleDateString("en-GB")}</td>
                   <td>{new Date(order.deadline).toLocaleDateString("en-GB")}</td>
                   <td>
-                    <select name="statusSelect" className='bg-[#171717] border p-3' id={`statusSelect-${index}`} value={order.status} onChange={
+                    <select name="statusSelect" id={`statusSelect-${index}`} value={order.status} onChange={
                       async (e) => {
                         try {
                           const newStatus: number = Number(e.target.value);
@@ -182,32 +182,32 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                         }
                       }}>
                       <option value="0">Created</option>
-                      <option value="1" className='bg-[#1f1f1f]'>Ordered</option>
+                      <option value="1">Ordered</option>
                       <option value="2">Arrived</option>
-                      <option value="3" className='bg-[#1f1f1f]'>Finished</option>
+                      <option value="3">Finished</option>
                       <option value="4">Reported</option>
-                      <option value="5" className='bg-[#1f1f1f]'>Delivered</option>
+                      <option value="5">Delivered</option>
                     </select>
                   </td>
                   <td>{`${order.totalPrice}€`}</td>
-                  <td className='w-full h-full'>
-                    <div className='flex'>
-                      <button onClick={() => handleOrderForm("PUT", order.id)}><img src='./icon-edit.png' alt='edit icon' className='w-3/6' /></button>
-                      <button onClick={() => { deleteOrder(order.id) }}><img src='./icon-delete.png' alt='delete icon' className='w-3/6' /></button>
+                  <td>
+                    <div>
+                      <button onClick={() => handleOrderForm("PUT", order.id)}><img src='./icon-edit.png' alt='edit icon' /></button>
+                      <button onClick={() => { deleteOrder(order.id) }}><img src='./icon-delete.png' alt='delete icon' /></button>
                     </div>
                   </td>
                 </tr>
               );
             })}
-            <tr className='text-center justify-center w-full text-5xl'>
+            <tr>
               <td colSpan={7}>
-                <div className='w-full flex justify-center h-10'>
+                <div>
                   <button
                     type="button"
                     onClick={() => {
                       handleOrderForm("POST");
                     }}
-                    className='w-full'>
+                    >
                     +
                   </button>
                 </div>
@@ -217,7 +217,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
         </table>
       </div>
       <OrderForm dataTableFormShown={dataTableFormShown} postOrPut={postOrPut} selectedId={selectedId} setSelectedId={() => setSelectedId("")} onClose={() => setDataTableFormShown(false)} orderData={orderData} onSuccess={(data: Order[]) => { setOrderData(data) }} />
-      <div className='flex gap-3 pb-10 pt-1 text-2xl'>
+      <div>
         <button onClick={() => { setSelectedPage(selectedPage === 1 ? selectedPage : selectedPage - 1) }}>{"<"}</button>
         <p>{`${selectedPage}/${numberOfPages}`}</p>
         <button onClick={() => { setSelectedPage(selectedPage === numberOfPages ? selectedPage : selectedPage + 1) }}>{">"}</button>

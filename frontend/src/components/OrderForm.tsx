@@ -218,8 +218,8 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
   }
 
   return (
-    <div className={`${dataTableFormShown ? "" : "hidden"} z-1 absolute bg-[#1f1f1f] p-10 border rounded-lg w-2/3`}>
-      <div className="relative w-full h-full">
+    <div className={`${dataTableFormShown ? "" : "hidden"}`}>
+      <div>
         <button
           type="button"
           onClick={() => {
@@ -227,13 +227,13 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
             setSelectedId();
             onClose();
           }}
-          className="absolute top-0 right-0 border rounded-lg px-2 bg-[#e81123] border-[#980b17] hover:bg-[#980b17]"
+          
         >X</button>
 
-        <form onSubmit={handleSubmit} className="text-xl grid">
-          <div className="flex justify-center items-center gap-3 pb-3">
-            <label htmlFor="Name" className="">Name:</label>
-            <input autoComplete='off' type="text" className="border rounded-lg p-1" id="Name" name="Name" placeholder="P&G" value={name} onChange={(e) => { setName(e.target.value) }} required />
+        <form onSubmit={handleSubmit}>
+          <div>
+            <label htmlFor="Name">Name:</label>
+            <input autoComplete='off' type="text" id="Name" name="Name" placeholder="P&G" value={name} onChange={(e) => { setName(e.target.value) }} required />
           </div>
 
           {/* Quantity Groups */}
@@ -241,14 +241,14 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
             Array.from({ length: quantityGroups.length }).map((_, index) => {
               return (
                 <div key={index}>
-                  <div className="flex gap-5 pb-1">
-                    <div className="flex gap-3 items-center w-1/3">
+                  <div>
+                    <div>
                       <label htmlFor={`quantityGroup-${index}`}>Group:</label>
-                      <input autoComplete='off' type="text" className="border rounded-lg p-1 w-full" id={`quantityGroup-${index}`} name={`quantityGroup-${index}`} value={quantityGroups[index].groupKey} onChange={(e) => { quantityGroupValueHelper(index, e.target.value) }} required placeholder="129" />
+                      <input autoComplete='off' type="text" id={`quantityGroup-${index}`} name={`quantityGroup-${index}`} value={quantityGroups[index].groupKey} onChange={(e) => { quantityGroupValueHelper(index, e.target.value) }} required placeholder="129" />
                     </div>
-                    <div className="flex gap-2">
-                      <button className="border rounded-lg w-10 hover:bg-white hover:text-[#1f1f1f]" type="button" onClick={() => { modifyQuantityGroupAmount() }}>+</button>
-                      <button className="border rounded-lg w-10 hover:bg-white hover:text-[#1f1f1f]" type="button" onClick={() => { modifyQuantityGroupAmount(index) }}>-</button>
+                    <div>
+                      <button type="button" onClick={() => { modifyQuantityGroupAmount() }}>+</button>
+                      <button type="button" onClick={() => { modifyQuantityGroupAmount(index) }}>-</button>
                     </div>
                   </div>
 
@@ -256,16 +256,16 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
                   {
                     Array.from({ length: quantityGroups[index].quantities.length }).map((_, jndex) => {
                       return (
-                        <div key={jndex} className="pl-10 pb-1">
-                          <div className="flex gap-5">
-                            <div className="flex gap-3 items-center w-1/4">
+                        <div key={jndex}>
+                          <div>
+                            <div>
                               <label htmlFor={`size-${jndex}`}>Size:</label>
-                              <input autoComplete='off' type="text" id={`size-${jndex}`} className="border rounded-lg p-1 w-full" name={`size-${jndex}`} value={quantityGroups[index].quantities[jndex].size} onChange={(e) => { setSize(index, jndex, e.target.value) }} required placeholder="XL" />
-                              <input autoComplete='off' className="border rounded-lg p-1 w-full" type="number" id={`quantity-${jndex}`} name={`quantity-${jndex}`} value={quantityGroups[index].quantities[jndex].quantity == 0 ? "" : quantityGroups[index].quantities[jndex].quantity} onChange={(e) => { setQuantity(index, jndex, Number(e.target.valueAsNumber)) }} required placeholder="3" />
+                              <input autoComplete='off' type="text" id={`size-${jndex}`} name={`size-${jndex}`} value={quantityGroups[index].quantities[jndex].size} onChange={(e) => { setSize(index, jndex, e.target.value) }} required placeholder="XL" />
+                              <input autoComplete='off' type="number" id={`quantity-${jndex}`} name={`quantity-${jndex}`} value={quantityGroups[index].quantities[jndex].quantity == 0 ? "" : quantityGroups[index].quantities[jndex].quantity} onChange={(e) => { setQuantity(index, jndex, Number(e.target.valueAsNumber)) }} required placeholder="3" />
                             </div>
-                            <div className="flex gap-2">
-                              <button className="border rounded-lg w-10 hover:bg-white hover:text-[#1f1f1f]" type="button" onClick={() => { modifyQuantityAmout(index) }}>+</button>
-                              <button className="border rounded-lg w-10 hover:bg-white hover:text-[#1f1f1f]" type="button" onClick={() => { modifyQuantityAmout(index, jndex) }}>-</button>
+                            <div>
+                              <button type="button" onClick={() => { modifyQuantityAmout(index) }}>+</button>
+                              <button type="button" onClick={() => { modifyQuantityAmout(index, jndex) }}>-</button>
                             </div>
                           </div>
 
@@ -278,27 +278,27 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
             })
           }
 
-          <div className="flex gap-3 w-1/4 items-center pb-1">
+          <div>
             <label htmlFor="CreatedAt" className={postOrPut == "PUT" ? "" : "hidden"}>CreatedAt:</label>
-            <input autoComplete='off' type="datetime-local" name="CreatedAt" id="CreatedAt" value={createdAt} className={`${postOrPut == "PUT" ? "" : "hidden"} border rounded-lg w-full p-1`} readOnly />
+            <input autoComplete='off' type="datetime-local" name="CreatedAt" id="CreatedAt" value={createdAt} className={`${postOrPut == "PUT" ? "" : "hidden"}`} readOnly />
 
             <label htmlFor="Deadline">Deadline:</label>
-            <input autoComplete='off' type="datetime-local" name="Deadline" id="Deadline" value={deadline} onChange={(e) => { setDeadline(e.target.value) }} className="border rounded-lg w-full p-1" />
+            <input autoComplete='off' type="datetime-local" name="Deadline" id="Deadline" value={deadline} onChange={(e) => { setDeadline(e.target.value) }} />
           </div>
 
-          <div className="flex gap-3 w-full items-center pb-1">
+          <div>
             <label htmlFor="Price" className={postOrPut == "PUT" ? "" : "hidden"}>Price:</label>
-            <input autoComplete='off' id="Price" type="number" value={price} onChange={((e) => { setPrice(Number(e.target.value)) })} className={`${postOrPut == "PUT" ? "" : "hidden"} border rounded-lg p-1 w-1/10`} />
+            <input autoComplete='off' id="Price" type="number" value={price} onChange={((e) => { setPrice(Number(e.target.value)) })} className={`${postOrPut == "PUT" ? "" : "hidden"}`} />
           </div>
 
-          <div className="flex gap-3 items-center pb-1">
+          <div>
             <label htmlFor="Status" className={postOrPut == "PUT" ? "" : "hidden"}>Status:</label>
             <select
               name="Status"
               id="Status"
               value={orderStatus}
               onChange={(e) => setOrderStatus(Number(e.target.value))}
-              className={`${postOrPut == "PUT" ? "" : "hidden"} bg-[#1f1f1f] p-1 border rounded-lg`}
+              className={`${postOrPut == "PUT" ? "" : "hidden"}`}
             >
               <option value="0">Created</option>
               <option value="1">Ordered</option>
@@ -309,8 +309,8 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
             </select>
           </div>
 
-          <div className="flex justify-center">
-            <button type="submit" className="border rounded-lg bg-[#e81123] border-[#980b17] hover:bg-[#980b17] w-1/10">Submit</button>
+          <div>
+            <button type="submit">Submit</button>
           </div>
         </form>
       </div>

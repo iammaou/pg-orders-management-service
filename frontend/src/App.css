@@ -39,3 +39,26 @@
   font-weight: 900;
   font-style: normal;
 }
+
+.dark-gray{
+  background-color: #1f1f1f;
+}
+
+.darker-gray{
+  background-color: #171717;
+}
+
+.red-button{
+  border: solid #980b17 1px;
+  border-radius: 8px;
+  background-color: #e81123;
+}
+
+.red-button:hover{
+  background-color: #980b17;
+}
+
+.white-border{
+  border: white 1px solid;
+  border-radius: 8px;
+}
