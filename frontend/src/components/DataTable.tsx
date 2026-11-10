@@ -4,6 +4,7 @@ import { OrderForm } from './OrderForm';
 import { type EditOrder, type Order } from '../types/Interfaces'
 import "../App.css"
 import { apiFetch } from '../apiFetch';
+import { useMediaQuery } from 'react-responsive';
 
 interface props {
   onApiKeyReset: () => void
@@ -18,11 +19,35 @@ export const OrderStatusMap: Record<number, string> = {
   5: 'Delivered',
 };
 
+const emptyOrder:Order = {
+    id: '',
+    name: '',
+    quantityGroups: [
+      {
+        id: 0,
+        groupKey: '',
+        quantities: [
+          {
+            id: 0,
+            size: '',
+            quantity: 0
+          }
+        ]
+      }
+    ],
+    status: 0,
+    createdAt: '',
+    deadline: '',
+    totalPrice: 0
+  }
+
 export const DataTable = ({ onApiKeyReset }: props) => {
   const [dataTableFormShown, setDataTableFormShown] = useState<boolean>(false);
+  const [dataTableHidden, setDataTableHidden] = useState<boolean>(false)
   const [orderData, setOrderData] = useState<Order[]>([]);
   const [postOrPut, setPostOrPut] = useState<"POST" | "PUT">("POST");
   const [selectedId, setSelectedId] = useState<string>('');
+  const [selectedOrder, setSelectedOrder] = useState<Order>(emptyOrder);
   const [selectedPage, setSelectedPage] = useState<number>(1);
   const [numberOfPages, setNumberOfPages] = useState<number>(1);
   const [sortBy, setSortBy] = useState<"createdAt" | "deadline">("createdAt");
@@ -73,6 +98,16 @@ export const DataTable = ({ onApiKeyReset }: props) => {
     getOrders();
   }, [selectedPage, descending, sortBy, statusFilter]);
 
+  function useBreakpoint() {
+    const isMobile = useMediaQuery({ query: '(max-width: 640px)' });
+    const isTablet = useMediaQuery({ query: '(max-width: 1024px)' });
+    const isDesktop = !isTablet;
+
+    return { isMobile, isTablet, isDesktop };
+  }
+
+  const { isMobile } = useBreakpoint();
+
   const handleSortChange = (newlySelected: "createdAt" | "deadline") => {
     if (sortBy === newlySelected) {
       setDescending(!descending);
@@ -82,21 +117,73 @@ export const DataTable = ({ onApiKeyReset }: props) => {
     setSortBy(newlySelected);
   }
 
+  const handleOnViewMore = (index: number) => {
+    if (isMobile) {
+      setDataTableHidden(true);
+      setSelectedOrder(orderData[index]);
+    }
+  }
+
+  const statusSelect = (order: Order) => {
+    return <select name="statusSelect" id={`statusSelect`} value={order.status} onChange={
+      async (e) => {
+        try {
+          const newStatus: number = Number(e.target.value);
+
+          const payload: EditOrder = {
+            name: order.name,
+            deadline: order.deadline,
+            totalPrice: order.totalPrice,
+            quantityGroups: order.quantityGroups,
+            createdAt: order.createdAt,
+            status: newStatus
+          }
+
+          await apiFetch(order.id, { method: "PUT", body: JSON.stringify(payload) }).then((res) => {
+            if (!res.ok) {
+              alert(`Edit error: ${res.status}`);
+              return;
+            }
+
+            setOrderData(prev => prev.map(o => o.id === order.id ? { ...o, status: newStatus } : o));
+          }).catch((err) => {
+            alert(`Error: ${err}`)
+          })
+
+        } catch (e) {
+          alert(`Error occured: ${e}`)
+        }
+      }}>
+      <option value="0">Created</option>
+      <option value="1">Ordered</option>
+      <option value="2">Arrived</option>
+      <option value="3">Finished</option>
+      <option value="4">Reported</option>
+      <option value="5">Delivered</option>
+    </select>
+  }
+
   return (
-    <div className={`${Cookies.get('x-api-key') == undefined ? "hidden" : ""}`}>
-      <div className={`${dataTableFormShown ? "blur-sm pointer-events-none z-0" : ""}`}>
-        <table>
+    <div className={`${Cookies.get('x-api-key') == undefined ? "hidden" : ""} w-full text-white pt-5 `}>
+      <div className={`${dataTableHidden ? "blur-sm pointer-events-none z-0" : ""} white-border p-1`}>
+        <table className='text-md w-full text-center'>
           <thead>
             <tr>
               <th>Name</th>
-              <th>Quantity Groups</th>
-              <th>
-                <button onClick={() => { handleSortChange("createdAt") }}>
-                  {`Created At`}
-                  <p className={`${sortBy === "createdAt" ? "" : "hidden"} ${descending ? "rotate-180" : ""}`}>{"⏷"}
-                  </p>
-                </button>
-              </th>
+              {
+                !isMobile ? <th>QuantityGroups</th> : null
+              }
+              {
+                !isMobile ?
+                  <th>
+                    <button onClick={() => { handleSortChange("createdAt") }}>
+                      {`Created At`}
+                      <p className={`${sortBy === "createdAt" ? "" : "hidden"} ${descending ? "rotate-180" : ""}`}>{"⏷"}
+                      </p>
+                    </button>
+                  </th>
+                  : null
+              }
               <th>
                 <button onClick={() => { handleSortChange("deadline") }}>
                   {`Deadline`}
@@ -104,30 +191,37 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                   </p>
                 </button>
               </th>
-              <th>
-                <select name="filter" id="filter" onChange={(e) => {
-                  const newStatus = Number(e.target.value);
-                  switch(newStatus){
-                    case 0: setStatusFilter("Created"); break;
-                    case 1: setStatusFilter("Ordered"); break;
-                    case 2: setStatusFilter("Arrived"); break;
-                    case 3: setStatusFilter("Finished"); break;
-                    case 4: setStatusFilter("ReportedAsFinished"); break;
-                    case 5: setStatusFilter("Delivered"); break;
-                    default: setStatusFilter("null"); break;
-                  }
-                }}>
-                  <option value="null">Status</option>
-                  <option value="0">{OrderStatusMap[0]}</option>
-                  <option value="1">{OrderStatusMap[1]}</option>
-                  <option value="2">{OrderStatusMap[2]}</option>
-                  <option value="3">{OrderStatusMap[3]}</option>
-                  <option value="4">{OrderStatusMap[4]}</option>
-                  <option value="5">{OrderStatusMap[5]}</option>
-                </select>
-              </th>
-              <th>Price</th>
-              <th></th>
+              {
+                !isMobile ?
+                  <th>
+                    <select name="filter" id="filter" onChange={(e) => {
+                      const newStatus = Number(e.target.value);
+                      switch (newStatus) {
+                        case 0: setStatusFilter("Created"); break;
+                        case 1: setStatusFilter("Ordered"); break;
+                        case 2: setStatusFilter("Arrived"); break;
+                        case 3: setStatusFilter("Finished"); break;
+                        case 4: setStatusFilter("ReportedAsFinished"); break;
+                        case 5: setStatusFilter("Delivered"); break;
+                        default: setStatusFilter("null"); break;
+                      }
+                    }}>
+                      <option value="null">Status</option>
+                      <option value="0">{OrderStatusMap[0]}</option>
+                      <option value="1">{OrderStatusMap[1]}</option>
+                      <option value="2">{OrderStatusMap[2]}</option>
+                      <option value="3">{OrderStatusMap[3]}</option>
+                      <option value="4">{OrderStatusMap[4]}</option>
+                      <option value="5">{OrderStatusMap[5]}</option>
+                    </select>
+                  </th>
+                  : null
+              }
+
+              {
+                !isMobile ? <th>Price</th> : null
+              }
+              <th className='w-10'></th>
             </tr>
           </thead>
           <tbody>
@@ -135,79 +229,61 @@ export const DataTable = ({ onApiKeyReset }: props) => {
               return (
                 <tr key={order.id} className={`${(index + 2) % 2 == 0 ? "bg-[#171717]" : ""}`}>
                   <td>{order.name}</td>
-                  <td>{order.quantityGroups.map((group) => {
-                    return (
-                      <div key={group.id}>
-                        <h4>{group.groupKey}</h4>
-                        <div>{group.quantities.map((quantity) => {
-                          return (
-                            <div key={quantity.id}>
-                              <p>{quantity.size}-{quantity.quantity}kom</p>
-                            </div>
-                          );
-                        })}</div>
-                      </div>
-                    );
-                  })}</td>
-                  <td>{new Date(order.createdAt).toLocaleDateString("en-GB")}</td>
+
+                  {
+                    !isMobile ?
+                      <td>{order.quantityGroups.map((group) => {
+                        return (
+                          <div key={group.id}>
+                            <h4>{group.groupKey}</h4>
+                            <div>{group.quantities.map((quantity) => {
+                              return (
+                                <div key={quantity.id}>
+                                  <p>{quantity.size}-{quantity.quantity}kom</p>
+                                </div>
+                              );
+                            })}</div>
+                          </div>
+                        );
+                      })}</td>
+                      : null
+                  }
+                  {
+                    !isMobile ? <td>{new Date(order.createdAt).toLocaleDateString("en-GB")}</td> : null
+                  }
                   <td>{new Date(order.deadline).toLocaleDateString("en-GB")}</td>
-                  <td>
-                    <select name="statusSelect" id={`statusSelect-${index}`} value={order.status} onChange={
-                      async (e) => {
-                        try {
-                          const newStatus: number = Number(e.target.value);
 
-                          const payload: EditOrder = {
-                            name: order.name,
-                            deadline: order.deadline,
-                            totalPrice: order.totalPrice,
-                            quantityGroups: order.quantityGroups,
-                            createdAt: order.createdAt,
-                            status: newStatus
-                          }
-
-                          await apiFetch(order.id, { method: "PUT", body: JSON.stringify(payload) }).then((res) => {
-                            if (!res.ok) {
-                              alert(`Edit error: ${res.status}`);
-                              return;
-                            }
-
-                            setOrderData(prev => prev.map(o => o.id === order.id ? { ...o, status: newStatus } : o));
-                          }).catch((err) => {
-                            alert(`Error: ${err}`)
-                          })
-
-                        } catch (e) {
-                          alert(`Error occured: ${e}`)
-                        }
-                      }}>
-                      <option value="0">Created</option>
-                      <option value="1">Ordered</option>
-                      <option value="2">Arrived</option>
-                      <option value="3">Finished</option>
-                      <option value="4">Reported</option>
-                      <option value="5">Delivered</option>
-                    </select>
-                  </td>
-                  <td>{`${order.totalPrice}€`}</td>
-                  <td>
-                    <div>
-                      <button onClick={() => handleOrderForm("PUT", order.id)}><img src='./icon-edit.png' alt='edit icon' /></button>
-                      <button onClick={() => { deleteOrder(order.id) }}><img src='./icon-delete.png' alt='delete icon' /></button>
+                  {
+                    !isMobile ?
+                      <td>
+                        {statusSelect(order)}
+                      </td>
+                      : null
+                  }
+                  {
+                    !isMobile ? <td>{`€${order.totalPrice}`}</td> : null
+                  }
+                  <td className='w-1/3'>
+                    <div className='flex gap-1'>
+                      {
+                        isMobile ? <button onClick={() => { handleOnViewMore(index) }}><img src={`./icon-view-more.png`} alt="view more icon" /></button> : null
+                      }
+                      <button onClick={() => handleOrderForm("PUT", order.id)}><img src={`./icon-edit.png`} alt='edit icon' /></button>
+                      <button onClick={() => { deleteOrder(order.id) }}><img src={`./icon-delete.png`} alt='delete icon' /></button>
                     </div>
                   </td>
                 </tr>
               );
             })}
             <tr>
-              <td colSpan={7}>
-                <div>
+              <td colSpan={isMobile ? 3 : 7}>
+                <div className='text-center text-xl'>
                   <button
                     type="button"
                     onClick={() => {
                       handleOrderForm("POST");
                     }}
-                    >
+                  >
                     +
                   </button>
                 </div>
@@ -216,8 +292,44 @@ export const DataTable = ({ onApiKeyReset }: props) => {
           </tbody>
         </table>
       </div>
-      <OrderForm dataTableFormShown={dataTableFormShown} postOrPut={postOrPut} selectedId={selectedId} setSelectedId={() => setSelectedId("")} onClose={() => setDataTableFormShown(false)} orderData={orderData} onSuccess={(data: Order[]) => { setOrderData(data) }} />
-      <div>
+      {
+        (!dataTableHidden && selectedOrder.id === '') ? null : <div>
+          <button
+          type="button"
+          onClick={() => {
+            setSelectedOrder(emptyOrder);
+            setDataTableHidden(false);
+          }}
+          
+        >X</button>
+          <h3>{`Name: ${selectedOrder.name}`}</h3>
+          <div>
+            {selectedOrder.quantityGroups.map((_, index) => {
+              return <div key={`quantityGroup-${index}`}>
+                <h3>{selectedOrder.quantityGroups[index].groupKey}</h3>
+                <div>
+                  {
+                    selectedOrder.quantityGroups[index].quantities.map((_, jndex) => {
+                      return <div key={`quantity-${jndex}`}>
+                        <h3>{`${selectedOrder.quantityGroups[index].quantities[jndex].size}-${selectedOrder.quantityGroups[index].quantities[jndex].quantity}`}</h3>
+                      </div>
+                    })
+                  }
+                </div>
+              </div>
+            })}
+          </div>
+          <h3>{`Created At: ${selectedOrder.createdAt}`}</h3>
+          <h3>{`Deadline At: ${selectedOrder.deadline}`}</h3>
+          <h3>{`Price: €${selectedOrder.totalPrice}`}</h3>
+          {statusSelect(selectedOrder)}
+        </div>
+      }
+      <OrderForm dataTableFormShown={dataTableFormShown} postOrPut={postOrPut} selectedId={selectedId} setSelectedId={() => setSelectedId("")} onClose={() => {
+        setDataTableFormShown(false);
+        setDataTableHidden(false);
+      }} orderData={orderData} onSuccess={(data: Order[]) => { setOrderData(data) }} />
+      <div className='flex gap-2 justify-center'>
         <button onClick={() => { setSelectedPage(selectedPage === 1 ? selectedPage : selectedPage - 1) }}>{"<"}</button>
         <p>{`${selectedPage}/${numberOfPages}`}</p>
         <button onClick={() => { setSelectedPage(selectedPage === numberOfPages ? selectedPage : selectedPage + 1) }}>{">"}</button>

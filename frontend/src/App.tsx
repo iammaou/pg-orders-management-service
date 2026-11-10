@@ -22,12 +22,14 @@ function App() {
   }
 
   return (
-    <div>
-      <header>
-        <img src="./pg-logo.png" alt="p&g logo"/>
-        <button onClick={handleApiKeyChange} className={`${Cookies.get('x-api-key') == undefined ? "hidden" : ""}`}>Sign Out</button>
+    <div className='dark-gray w-full h-screen p-3'>
+      <header className='w-full flex justify-between'>
+        <img src="./pg-logo.png" alt="p&g logo" className='w-1/6'/>
+        <button onClick={handleApiKeyChange} className={`${Cookies.get('x-api-key') == undefined ? "hidden" : ""} red-button px-3 text-xl text-white`}>Sign Out</button>
       </header>
-      <DataTable onApiKeyReset={handleApiKeyChange}/>
+      <div>
+        <DataTable onApiKeyReset={handleApiKeyChange}/>
+      </div>
     </div>
   )
 }
