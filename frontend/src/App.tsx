@@ -15,14 +15,14 @@ function App() {
 
   if(!isApiKeySet){
     return(
-      <div className='dark-gray w-full min-h-screen h-full kedebideri-regular text-white'>
+      <div className='dark-gray w-full h-fit min-h-screen kedebideri-regular text-white'>
         <ApiKeyForm onSuccess={() => setIsApiKeySet(true)}/>
       </div>
     );
   }
 
   return (
-    <div className='dark-gray w-full h-screen p-3'>
+    <div className='dark-gray w-full h-fit min-h-screen p-3'>
       <header className='w-full flex justify-between'>
         <img src="./pg-logo.png" alt="p&g logo" className='w-1/6'/>
         <button onClick={handleApiKeyChange} className={`${Cookies.get('x-api-key') == undefined ? "hidden" : ""} red-button px-3 text-xl text-white`}>Sign Out</button>

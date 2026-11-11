@@ -19,27 +19,27 @@ export const OrderStatusMap: Record<number, string> = {
   5: 'Delivered',
 };
 
-const emptyOrder:Order = {
-    id: '',
-    name: '',
-    quantityGroups: [
-      {
-        id: 0,
-        groupKey: '',
-        quantities: [
-          {
-            id: 0,
-            size: '',
-            quantity: 0
-          }
-        ]
-      }
-    ],
-    status: 0,
-    createdAt: '',
-    deadline: '',
-    totalPrice: 0
-  }
+const emptyOrder: Order = {
+  id: '',
+  name: '',
+  quantityGroups: [
+    {
+      id: 0,
+      groupKey: '',
+      quantities: [
+        {
+          id: 0,
+          size: '',
+          quantity: 0
+        }
+      ]
+    }
+  ],
+  status: 0,
+  createdAt: '',
+  deadline: '',
+  totalPrice: 0
+}
 
 export const DataTable = ({ onApiKeyReset }: props) => {
   const [dataTableFormShown, setDataTableFormShown] = useState<boolean>(false);
@@ -124,8 +124,8 @@ export const DataTable = ({ onApiKeyReset }: props) => {
     }
   }
 
-  const statusSelect = (order: Order) => {
-    return <select name="statusSelect" id={`statusSelect`} value={order.status} onChange={
+  const statusSelect = (index:number, order: Order) => {
+    return <select className='white' name="statusSelect" id={`statusSelect-${index}`} value={order.status} onChange={
       async (e) => {
         try {
           const newStatus: number = Number(e.target.value);
@@ -154,19 +154,23 @@ export const DataTable = ({ onApiKeyReset }: props) => {
           alert(`Error occured: ${e}`)
         }
       }}>
-      <option value="0">Created</option>
-      <option value="1">Ordered</option>
-      <option value="2">Arrived</option>
-      <option value="3">Finished</option>
-      <option value="4">Reported</option>
-      <option value="5">Delivered</option>
+      <option value="0" className='dark-gray'>Created</option>
+      <option value="1" className='darker-gray'>Ordered</option>
+      <option value="2" className='dark-gray'>Arrived</option>
+      <option value="3" className='darker-gray'>Finished</option>
+      <option value="4" className='dark-gray'>Reported</option>
+      <option value="5" className='darker-gray'>Delivered</option>
     </select>
   }
 
+  const breakLine = () => {
+    return <div className='h-px w-full bg-white my-2'></div>;
+  }
+
   return (
-    <div className={`${Cookies.get('x-api-key') == undefined ? "hidden" : ""} w-full text-white pt-5 `}>
-      <div className={`${dataTableHidden ? "blur-sm pointer-events-none z-0" : ""} white-border p-1`}>
-        <table className='text-md w-full text-center'>
+    <div className={`${Cookies.get('x-api-key') == undefined ? "hidden" : ""} relative w-full text-white pt-5 `}>
+      <div className={`${dataTableHidden || dataTableFormShown ? "blur-sm pointer-events-none z-0" : ""} white-border p-1`}>
+        <table className='text-xl w-full text-center'>
           <thead>
             <tr>
               <th>Name</th>
@@ -184,12 +188,12 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                   </th>
                   : null
               }
-              <th>
+              <th className='flex justify-center gap-2'>
                 <button onClick={() => { handleSortChange("deadline") }}>
-                  {`Deadline`}
+                  Deadline
+                </button>
                   <p className={`${sortBy === "deadline" ? "" : "hidden"} ${descending ? "rotate-180" : ""}`}>{"⏷"}
                   </p>
-                </button>
               </th>
               {
                 !isMobile ?
@@ -256,7 +260,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                   {
                     !isMobile ?
                       <td>
-                        {statusSelect(order)}
+                        {statusSelect(index, order)}
                       </td>
                       : null
                   }
@@ -293,43 +297,48 @@ export const DataTable = ({ onApiKeyReset }: props) => {
         </table>
       </div>
       {
-        (!dataTableHidden && selectedOrder.id === '') ? null : <div>
-          <button
-          type="button"
-          onClick={() => {
-            setSelectedOrder(emptyOrder);
-            setDataTableHidden(false);
-          }}
-          
-        >X</button>
-          <h3>{`Name: ${selectedOrder.name}`}</h3>
-          <div>
-            {selectedOrder.quantityGroups.map((_, index) => {
-              return <div key={`quantityGroup-${index}`}>
-                <h3>{selectedOrder.quantityGroups[index].groupKey}</h3>
-                <div>
-                  {
-                    selectedOrder.quantityGroups[index].quantities.map((_, jndex) => {
-                      return <div key={`quantity-${jndex}`}>
-                        <h3>{`${selectedOrder.quantityGroups[index].quantities[jndex].size}-${selectedOrder.quantityGroups[index].quantities[jndex].quantity}`}</h3>
-                      </div>
-                    })
-                  }
-                </div>
+        (!dataTableHidden && selectedOrder.id === '') ? null :
+          <div className='dark-gray absolute text-2xl w-full white-border top-3 z-1 p-4'>
+            <div className='w-full relative'>
+              <button
+                type="button"
+                className='red-button absolute px-2 top-0 right-0'
+                onClick={() => {
+                  setSelectedOrder(emptyOrder);
+                  setDataTableHidden(false);
+                }}
+              >X</button>
+              <h3 className='pt-2 text-center'>{`${selectedOrder.name}`}</h3>
+              {breakLine()}
+              <div className='pl-3'>
+                {selectedOrder.quantityGroups.map((_, index) => {
+                  return <div key={`quantityGroup-${index}`}>
+                    <h3>{`${selectedOrder.quantityGroups[index].groupKey}`}</h3>
+                    <div className='pl-7'>
+                      {
+                        selectedOrder.quantityGroups[index].quantities.map((_, jndex) => {
+                          return <div key={`quantity-${jndex}`}>
+                            <h3>{`${selectedOrder.quantityGroups[index].quantities[jndex].size}-${selectedOrder.quantityGroups[index].quantities[jndex].quantity}`}</h3>
+                          </div>
+                        })
+                      }
+                    </div>
+                  </div>
+                })}
               </div>
-            })}
+              {breakLine()}
+              <h3>{`Created At: ${new Date(selectedOrder.createdAt).toLocaleDateString("en-GB")}`}</h3>
+              <h3>{`Deadline At: ${new Date(selectedOrder.deadline).toLocaleDateString("en-GB")}`}</h3>
+              <h3>{`Price: €${selectedOrder.totalPrice}`}</h3>
+              {statusSelect(0, selectedOrder)}
+            </div>
           </div>
-          <h3>{`Created At: ${selectedOrder.createdAt}`}</h3>
-          <h3>{`Deadline At: ${selectedOrder.deadline}`}</h3>
-          <h3>{`Price: €${selectedOrder.totalPrice}`}</h3>
-          {statusSelect(selectedOrder)}
-        </div>
       }
       <OrderForm dataTableFormShown={dataTableFormShown} postOrPut={postOrPut} selectedId={selectedId} setSelectedId={() => setSelectedId("")} onClose={() => {
         setDataTableFormShown(false);
         setDataTableHidden(false);
       }} orderData={orderData} onSuccess={(data: Order[]) => { setOrderData(data) }} />
-      <div className='flex gap-2 justify-center'>
+      <div className={`flex gap-2 justify-center ${dataTableHidden ? "hidden" : null}`}>
         <button onClick={() => { setSelectedPage(selectedPage === 1 ? selectedPage : selectedPage - 1) }}>{"<"}</button>
         <p>{`${selectedPage}/${numberOfPages}`}</p>
         <button onClick={() => { setSelectedPage(selectedPage === numberOfPages ? selectedPage : selectedPage + 1) }}>{">"}</button>
