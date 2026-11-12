@@ -40,16 +40,11 @@ export const ApiKeyForm = ({ onSuccess }: props) => {
                   if (!res.ok) {
                     switch (res.status) {
                       case 401:
-                        alert(`Wrong API key!.`)
-                        return
+                        throw new Error(`Wrong API key!.`);
                       case 403:
-                        alert(`Unauthorized access.`)
-                        return
+                        throw new Error(`Unauthorized access.`);
                       default:
-                        alert(
-                          `Request failed with status code ${res.status}. Try again later.`
-                        )
-                        return
+                        throw new Error(`Request failed with status code ${res.status}. Try again later.`);
                     }
                   }
 

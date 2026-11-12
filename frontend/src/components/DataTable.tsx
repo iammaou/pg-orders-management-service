@@ -76,8 +76,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
   async function deleteOrder(id: string) {
     await apiFetch(id, { method: 'DELETE' }).then((res) => {
       if (!res.ok) {
-        alert(`Delete failed: ${res.status}`)
-        return
+        throw new Error(`Delete Failed: ${res.status}`)
       }
 
       setOrderData((prev) => prev.filter(order => order.id !== id));
@@ -87,6 +86,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
   }
 
   const handleOrderForm = (method: "POST" | "PUT", id?: string) => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     setPostOrPut(method);
     if (method == "PUT" && id) {
       setSelectedId(id)
@@ -141,8 +141,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
 
           await apiFetch(order.id, { method: "PUT", body: JSON.stringify(payload) }).then((res) => {
             if (!res.ok) {
-              alert(`Edit error: ${res.status}`);
-              return;
+              throw new Error(`Order update failed: ${res.status}`)
             }
 
             setOrderData(prev => prev.map(o => o.id === order.id ? { ...o, status: newStatus } : o));
@@ -168,10 +167,10 @@ export const DataTable = ({ onApiKeyReset }: props) => {
   }
 
   return (
-    <div className={`${Cookies.get('x-api-key') == undefined ? "hidden" : ""} relative w-full text-white pt-5 `}>
-      <div className={`${dataTableHidden || dataTableFormShown ? "blur-sm pointer-events-none z-0" : ""} white-border p-1`}>
-        <table className='text-xl w-full text-center'>
-          <thead>
+    <div className={`${Cookies.get('x-api-key') == undefined ? "hidden" : ""} relative w-full lg:w-5/6 text-white pt-5 mx-auto`}>
+      <div className={`${dataTableHidden || dataTableFormShown ? "blur-sm pointer-events-none z-0" : ""} white-border p-1 `}>
+        <table className='text-xl lg:text-2xl w-full text-center'>
+          <thead className='text-3xl border-b'>
             <tr>
               <th>Name</th>
               {
@@ -179,21 +178,27 @@ export const DataTable = ({ onApiKeyReset }: props) => {
               }
               {
                 !isMobile ?
-                  <th>
-                    <button onClick={() => { handleSortChange("createdAt") }}>
-                      {`Created At`}
-                      <p className={`${sortBy === "createdAt" ? "" : "hidden"} ${descending ? "rotate-180" : ""}`}>{"⏷"}
-                      </p>
-                    </button>
+                  <th className='text-center'>
+                    <div className='flex justify-self-center gap-2'>
+                      <button  onClick={() => { handleSortChange("createdAt") }}>
+                        {`Created At`}
+                      </button>
+
+                        <p className={`${sortBy === "createdAt" ? "" : "hidden"} ${descending ? "rotate-180" : ""}`}>{"⏷"}
+                        </p>
+                    </div>
                   </th>
                   : null
               }
-              <th className='flex justify-center gap-2'>
-                <button onClick={() => { handleSortChange("deadline") }}>
-                  Deadline
-                </button>
-                  <p className={`${sortBy === "deadline" ? "" : "hidden"} ${descending ? "rotate-180" : ""}`}>{"⏷"}
-                  </p>
+              <th>
+                <div className='flex justify-center gap-2'>
+                  <button onClick={() => { handleSortChange("deadline") }}>
+                    Deadline
+                  </button>
+                    <p className={`${sortBy === "deadline" ? "" : "hidden"} ${descending ? "rotate-180" : ""}`}>{"⏷"}
+                    </p>
+
+                </div>
               </th>
               {
                 !isMobile ?
@@ -210,13 +215,13 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                         default: setStatusFilter("null"); break;
                       }
                     }}>
-                      <option value="null">Status</option>
-                      <option value="0">{OrderStatusMap[0]}</option>
-                      <option value="1">{OrderStatusMap[1]}</option>
-                      <option value="2">{OrderStatusMap[2]}</option>
-                      <option value="3">{OrderStatusMap[3]}</option>
-                      <option value="4">{OrderStatusMap[4]}</option>
-                      <option value="5">{OrderStatusMap[5]}</option>
+                      <option value="null" className='dark-gray'>Status</option>
+                      <option value="0"className='darker-gray'>{OrderStatusMap[0]}</option>
+                      <option value="1" className='dark-gray'>{OrderStatusMap[1]}</option>
+                      <option value="2" className='darker-gray'>{OrderStatusMap[2]}</option>
+                      <option value="3" className='dark-gray'>{OrderStatusMap[3]}</option>
+                      <option value="4" className='darker-gray'>{OrderStatusMap[4]}</option>
+                      <option value="5" className='dark-gray'>{OrderStatusMap[5]}</option>
                     </select>
                   </th>
                   : null
@@ -267,7 +272,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                   {
                     !isMobile ? <td>{`€${order.totalPrice}`}</td> : null
                   }
-                  <td className='w-1/3'>
+                  <td className='w-1/3 md:w-1/6 lg:w-1/10'>
                     <div className='flex gap-1'>
                       {
                         isMobile ? <button onClick={() => { handleOnViewMore(index) }}><img src={`./icon-view-more.png`} alt="view more icon" /></button> : null
@@ -279,9 +284,9 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                 </tr>
               );
             })}
-            <tr>
+            <tr className='border-t'>
               <td colSpan={isMobile ? 3 : 7}>
-                <div className='text-center text-xl'>
+                <div className='text-center text-xl lg:text-5xl'>
                   <button
                     type="button"
                     onClick={() => {
@@ -338,7 +343,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
         setDataTableFormShown(false);
         setDataTableHidden(false);
       }} orderData={orderData} onSuccess={(data: Order[]) => { setOrderData(data) }} />
-      <div className={`flex gap-2 justify-center ${dataTableHidden ? "hidden" : null}`}>
+      <div className={`flex lg:text-3xl lg:pt-5 gap-2 justify-center ${dataTableHidden ? "hidden" : null}`}>
         <button onClick={() => { setSelectedPage(selectedPage === 1 ? selectedPage : selectedPage - 1) }}>{"<"}</button>
         <p>{`${selectedPage}/${numberOfPages}`}</p>
         <button onClick={() => { setSelectedPage(selectedPage === numberOfPages ? selectedPage : selectedPage + 1) }}>{">"}</button>
