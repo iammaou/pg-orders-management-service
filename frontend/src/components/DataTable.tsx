@@ -106,7 +106,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
     return { isMobile, isTablet, isDesktop };
   }
 
-  const { isMobile } = useBreakpoint();
+  const { isMobile, isTablet } = useBreakpoint();
 
   const handleSortChange = (newlySelected: "createdAt" | "deadline") => {
     if (sortBy === newlySelected) {
@@ -169,15 +169,15 @@ export const DataTable = ({ onApiKeyReset }: props) => {
   return (
     <div className={`${Cookies.get('x-api-key') == undefined ? "hidden" : ""} relative w-full lg:w-5/6 text-white pt-5 mx-auto`}>
       <div className={`${dataTableHidden || dataTableFormShown ? "blur-sm pointer-events-none z-0" : ""} white-border p-1 `}>
-        <table className='text-xl lg:text-2xl w-full text-center'>
-          <thead className='text-3xl border-b'>
+        <table className='text-xl md:text-xl lg:text-2xl w-full text-center'>
+          <thead className='text-3xl md:text-xl lg:text-3xl  border-b'>
             <tr>
               <th>Name</th>
               {
                 !isMobile ? <th>QuantityGroups</th> : null
               }
               {
-                !isMobile ?
+                !isMobile && !isTablet ?
                   <th className='text-center'>
                     <div className='flex justify-self-center gap-2'>
                       <button  onClick={() => { handleSortChange("createdAt") }}>
@@ -228,7 +228,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
               }
 
               {
-                !isMobile ? <th>Price</th> : null
+                !isMobile && !isTablet ? <th>Price</th> : null
               }
               <th className='w-10'></th>
             </tr>
@@ -258,7 +258,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                       : null
                   }
                   {
-                    !isMobile ? <td>{new Date(order.createdAt).toLocaleDateString("en-GB")}</td> : null
+                    !isMobile && !isTablet ? <td>{new Date(order.createdAt).toLocaleDateString("en-GB")}</td> : null
                   }
                   <td>{new Date(order.deadline).toLocaleDateString("en-GB")}</td>
 
@@ -270,7 +270,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                       : null
                   }
                   {
-                    !isMobile ? <td>{`€${order.totalPrice}`}</td> : null
+                    !isMobile && !isTablet ? <td>{`€${order.totalPrice}`}</td> : null
                   }
                   <td className='w-1/3 md:w-1/6 lg:w-1/10'>
                     <div className='flex gap-1'>

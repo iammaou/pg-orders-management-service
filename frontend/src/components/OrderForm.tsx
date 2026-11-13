@@ -220,7 +220,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
   }
 
   return (
-    <div className={`${dataTableFormShown ? "" : "hidden"} text-2xl lg:text-3xl absolute dark-gray white-border z-10 top-3 p-3 md:top-4 lg:top-13 lg:left-1/2 lg:-translate-x-1/2`}>
+    <div className={`${dataTableFormShown ? "" : "hidden"} text-2xl lg:text-3xl absolute dark-gray white-border z-10 top-3 p-3 md:top-4 lg:top-13 md:left-1/2 md:-translate-x-1/2 md:w-3/4 lg:w-2/3`}>
       <div className="relative">
         <button
           type="button"
@@ -237,7 +237,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
         <form onSubmit={handleSubmit} className="flex flex-col gap-1 lg:gap-4 lg:pl-10 w-full">
           <div className="flex justify-center gap-1 items-center">
             <label htmlFor="Name">Name:</label>
-            <input className="w-2/3 lg:w-1/3 white-border p-1" autoComplete='off' type="text" id="Name" name="Name" placeholder="P&G" value={name} onChange={(e) => { setName(e.target.value) }} required />
+            <input className="w-1/2 lg:w-1/3 white-border p-1" autoComplete='off' type="text" id="Name" name="Name" placeholder="P&G" value={name} onChange={(e) => { setName(e.target.value) }} required />
           </div>
 
           {/* Quantity Groups */}
