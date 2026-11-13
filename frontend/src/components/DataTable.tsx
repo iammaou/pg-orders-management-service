@@ -66,7 +66,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
     })
       .then((data) => {
         setSelectedPage(data.page);
-        setNumberOfPages(Math.floor(data.totalCount / data.pageSize) + 1);
+        setNumberOfPages(Math.floor(data.totalCount / data.pageSize) + (data.totalCount % 10 === 0 ? 0 : 1));
         setOrderData(data.items);
       }).catch((err) => {
         alert(`Error: ${err}`)
