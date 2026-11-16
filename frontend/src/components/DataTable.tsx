@@ -103,9 +103,8 @@ export const DataTable = ({ onApiKeyReset }: props) => {
   function useBreakpoint() {
     const isMobile = useMediaQuery({ query: '(max-width: 640px)' });
     const isTablet = useMediaQuery({ query: '(max-width: 1024px)' });
-    const isDesktop = !isTablet;
 
-    return { isMobile, isTablet, isDesktop };
+    return { isMobile, isTablet };
   }
 
   const { isMobile, isTablet } = useBreakpoint();
@@ -147,6 +146,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
             }
 
             setOrderData(prev => prev.map(o => o.id === order.id ? { ...o, status: newStatus } : o));
+            setSelectedOrder(prev => prev.id === order.id ? { ...prev, status: newStatus } : prev);
           }).catch((err) => {
             alert(`Error: ${err}`)
           })

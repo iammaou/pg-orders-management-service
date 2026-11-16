@@ -11,22 +11,25 @@ interface props{
   onClose: () => void
 }
 
-const deleteOrder = async(id:string, orderData:Order[], setOrderData:(newOrderData:Order[]) => void) => {
-  await apiFetch(id, { method: 'DELETE' }).then((res) => {
-    if (!res.ok) {
-          throw new Error(`Delete Failed: ${res.status}`)
-        }
+const deleteOrder = async(id:string): Promise<boolean> => {
+  const res = await apiFetch(id, { method: 'DELETE' });
 
-        setOrderData(orderData.filter(order => order.id!==id));
-      }).catch((err) => {
-        alert(`Error: ${err}`)
-      })
+  if(!res.ok) {
+    alert(`Delete Failed: ${res.status}`);
+    return false;
+  } else{
+    return true;
+  }
 }
 
 const onYes = async(id: string, orderData:Order[], setOrderData: (newOrderData:Order[]) => void, onClose:() => void) => {
   if(id !== ''){
-    await deleteOrder(id, orderData, setOrderData);
-    onClose();
+    const ok = await deleteOrder(id);
+
+    if(ok){
+      setOrderData(orderData.filter(order => order.id !== id))
+      onClose();
+    }
   }
 }
 
