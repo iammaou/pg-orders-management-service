@@ -5,6 +5,7 @@ import { type EditOrder, type Order } from '../types/Interfaces'
 import "../App.css"
 import { apiFetch } from '../apiFetch';
 import { useMediaQuery } from 'react-responsive';
+import ConfirmDelete from './ConfirmDelete';
 
 interface props {
   onApiKeyReset: () => void
@@ -50,45 +51,46 @@ export const DataTable = ({ onApiKeyReset }: props) => {
   const [selectedOrder, setSelectedOrder] = useState<Order>(emptyOrder);
   const [selectedPage, setSelectedPage] = useState<number>(1);
   const [numberOfPages, setNumberOfPages] = useState<number>(1);
+  const [pageSize] = useState<number>(10);
   const [sortBy, setSortBy] = useState<"createdAt" | "deadline">("createdAt");
   const [descending, setDescending] = useState<boolean>(false);
   const [statusFilter, setStatusFilter] = useState<"Created" | "Ordered" | "Arrived" | "Finished" | "ReportedAsFinished" | "Delivered" | "null">("null");
+  const [deleteWindowVisible, setDeleteWindowVisible] = useState<boolean>(false);
+  const [deleteOrderName, setDeleteOrderName] = useState<string>('');
+  const [deleteOrderId, setDeleteOrderId] = useState<string>('');
 
   async function getOrders() {
     await apiFetch(`?Page=${selectedPage}&SortBy=${sortBy}&IsDescending=${descending}${statusFilter === "null" ? "" : "&Status=" + statusFilter}`, { method: 'GET' }).then((res) => {
-      if (!res.ok && res.status !== 401) {
-        throw new Error(`Get failed: ${res.status}`);
-      } else if (res.status === 401) {
+      if (res.status === 401) {
         onApiKeyReset();
       }
+      if (!res.ok) {
+        throw new Error(`Get failed: ${res.status}`);
+      } else{
+        return res.json();
+      }
 
-      return res.json();
     })
       .then((data) => {
         setSelectedPage(data.page);
-        setNumberOfPages(Math.floor(data.totalCount / data.pageSize) + (data.totalCount % 10 === 0 ? 0 : 1));
+        setNumberOfPages(Math.floor(data.totalCount / data.pageSize) + (data.totalCount % pageSize === 0 ? 0 : 1));
         setOrderData(data.items);
       }).catch((err) => {
         alert(`Error: ${err}`)
       })
   }
 
-  async function deleteOrder(id: string) {
-    await apiFetch(id, { method: 'DELETE' }).then((res) => {
-      if (!res.ok) {
-        throw new Error(`Delete Failed: ${res.status}`)
-      }
-
-      setOrderData((prev) => prev.filter(order => order.id !== id));
-    }).catch((err) => {
-      alert(`Error: ${err}`)
-    })
+  async function requestDelete(id: string, name:string) {
+    setDataTableHidden(true);
+    setDeleteOrderName(name);
+    setDeleteOrderId(id);
+    setDeleteWindowVisible(true);
   }
 
   const handleOrderForm = (method: "POST" | "PUT", id?: string) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setPostOrPut(method);
-    if (method == "PUT" && id) {
+    if (method === "PUT" && id) {
       setSelectedId(id)
     }
     dataTableFormShown == false ? setDataTableFormShown(true) : setDataTableFormShown(false);
@@ -278,14 +280,14 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                         isMobile ? <button onClick={() => { handleOnViewMore(index) }}><img src={`./icon-view-more.png`} alt="view more icon" /></button> : null
                       }
                       <button onClick={() => handleOrderForm("PUT", order.id)}><img src={`./icon-edit.png`} alt='edit icon' /></button>
-                      <button onClick={() => { deleteOrder(order.id) }}><img src={`./icon-delete.png`} alt='delete icon' /></button>
+                      <button onClick={() => { requestDelete(order.id, order.name) }}><img src={`./icon-delete.png`} alt='delete icon' /></button>
                     </div>
                   </td>
                 </tr>
               );
             })}
             <tr className='border-t'>
-              <td colSpan={isMobile ? 3 : 7}>
+              <td colSpan={isMobile ? 3 : isTablet ? 5 : 7}>
                 <div className='text-center text-xl lg:text-5xl'>
                   <button
                     type="button"
@@ -302,7 +304,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
         </table>
       </div>
       {
-        (!dataTableHidden && selectedOrder.id === '') ? null :
+        (dataTableHidden && isMobile && selectedOrder.id !== '') ? 
           <div className='dark-gray absolute text-2xl w-full white-border top-3 z-1 p-4'>
             <div className='w-full relative'>
               <button
@@ -338,11 +340,18 @@ export const DataTable = ({ onApiKeyReset }: props) => {
               {statusSelect(0, selectedOrder)}
             </div>
           </div>
+          : null
       }
       <OrderForm dataTableFormShown={dataTableFormShown} postOrPut={postOrPut} selectedId={selectedId} setSelectedId={() => setSelectedId("")} onClose={() => {
         setDataTableFormShown(false);
         setDataTableHidden(false);
       }} orderData={orderData} onSuccess={(data: Order[]) => { setOrderData(data) }} />
+      <ConfirmDelete orderName={deleteOrderName} orderId={deleteOrderId} deleteWindowVisible={deleteWindowVisible} orderData={orderData} setOrderData={(newOrderData:Order[]) => setOrderData(newOrderData)} onClose={() => {
+        setDeleteOrderId('');
+        setDeleteOrderName('');
+        setDeleteWindowVisible(false);
+        setDataTableHidden(false);
+      }}/>
       <div className={`flex lg:text-3xl lg:pt-5 gap-2 justify-center ${dataTableHidden ? "hidden" : null}`}>
         <button onClick={() => { setSelectedPage(selectedPage === 1 ? selectedPage : selectedPage - 1) }}>{"<"}</button>
         <p>{`${selectedPage}/${numberOfPages}`}</p>

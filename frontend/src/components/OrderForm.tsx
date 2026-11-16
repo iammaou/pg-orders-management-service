@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { type NewOrder, type NewQuantityGroup, type EditOrder, type Order } from "../types/Interfaces";
 import { apiFetch } from "../apiFetch";
+import { type FormEvent } from 'react';
 
 interface props {
   dataTableFormShown: boolean,
@@ -86,7 +87,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
     return await apiFetch(!id ? "" : id, { method: postOrPut.toUpperCase(), body: JSON.stringify(payload) });
   }
 
-  const handleSubmit = async (e: React.SubmitEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!submitting) {
@@ -260,7 +261,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
                           <div className="flex gap-2 pl-8 items-center">
                             <label htmlFor={`size-${index}-${jndex}`}>Size:</label>
                             <input className="w-1/4 lg:w-1/7 white-border p-1" autoComplete='off' type="text" id={`size-${index}-${jndex}`} name={`size-${index}-${jndex}`} value={quantityGroups[index].quantities[jndex].size} onChange={(e) => { setSize(index, jndex, e.target.value) }} required placeholder="XL" />
-                            <input className="w-1/7 lg:w-1/10 white-border p-1" autoComplete='off' type="number" id={`quantity-${index}-${jndex}`} name={`quantity-${index}-${jndex}`} value={quantityGroups[index].quantities[jndex].quantity == 0 ? "" : quantityGroups[index].quantities[jndex].quantity} onChange={(e) => { setQuantity(index, jndex, Number(e.target.valueAsNumber)) }} required placeholder="3" />
+                            <input className="w-1/7 lg:w-1/10 white-border p-1" autoComplete='off' type="number" id={`quantity-${index}-${jndex}`} name={`quantity-${index}-${jndex}`} value={quantityGroups[index].quantities[jndex].quantity == 0 ? "" : quantityGroups[index].quantities[jndex].quantity} onChange={(e) => { setQuantity(index, jndex, Number.isNaN(e.target.valueAsNumber) ? 0 : Number(e.target.valueAsNumber))}} required placeholder="3" />
                             <button className="white-border px-3" type="button" onClick={() => { modifyQuantityAmout(index) }}>+</button>
                             <button className="white-border px-3" type="button" onClick={() => { modifyQuantityAmout(index, jndex) }}>-</button>
                           </div>
