@@ -51,7 +51,6 @@ export const DataTable = ({ onApiKeyReset }: props) => {
   const [selectedOrder, setSelectedOrder] = useState<Order>(emptyOrder);
   const [selectedPage, setSelectedPage] = useState<number>(1);
   const [numberOfPages, setNumberOfPages] = useState<number>(1);
-  const [pageSize] = useState<number>(10);
   const [sortBy, setSortBy] = useState<"createdAt" | "deadline">("createdAt");
   const [descending, setDescending] = useState<boolean>(false);
   const [statusFilter, setStatusFilter] = useState<"Created" | "Ordered" | "Arrived" | "Finished" | "ReportedAsFinished" | "Delivered" | "null">("null");
@@ -74,7 +73,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
     })
       .then((data) => {
         setSelectedPage(data.page);
-        setNumberOfPages(Math.floor(data.totalCount / data.pageSize) + (data.totalCount % pageSize === 0 ? 0 : 1));
+        setNumberOfPages(Math.max(1, Math.ceil(data.totalCount / data.pageSize)));
         setOrderData(data.items);
       }).catch((err) => {
         alert(`Error: ${err}`)
@@ -99,6 +98,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
 
   useEffect(() => {
     getOrders();
+    setSelectedPage(1);
   }, [selectedPage, descending, sortBy, statusFilter]);
 
   function useBreakpoint() {
@@ -346,7 +346,14 @@ export const DataTable = ({ onApiKeyReset }: props) => {
       <OrderForm dataTableFormShown={dataTableFormShown} postOrPut={postOrPut} selectedId={selectedId} setSelectedId={() => setSelectedId("")} onClose={() => {
         setDataTableFormShown(false);
         setDataTableHidden(false);
-      }} orderData={orderData} onSuccess={(data: Order[]) => { setOrderData(data) }} />
+      }} orderData={orderData} onSuccessPOST={(data: Order) => { 
+        if(orderData.length >= 10){
+          setNumberOfPages(prev => prev + 1);
+        }
+        setOrderData(prev => prev.length >= 10 ? [...prev] :[...prev, data]);
+      }} onSuccessPUT={(data:Order) => {
+        setOrderData(prev => prev.map(order => order.id === data.id ? data : order));
+      }}/>
       <ConfirmDelete orderName={deleteOrderName} orderId={deleteOrderId} deleteWindowVisible={deleteWindowVisible} onClose={() => {
         setDeleteOrderId('');
         setDeleteOrderName('');
@@ -365,7 +372,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
       <div className={`flex lg:text-3xl lg:pt-5 gap-2 justify-center ${dataTableHidden ? "hidden" : null}`}>
         <button onClick={() => { setSelectedPage(page => page === 1 ? page : page - 1) }}>{"<"}</button>
         <p>{`${selectedPage}/${numberOfPages}`}</p>
-        <button onClick={() => { setSelectedPage(page => page === 1 ? page : page + 1) }}>{">"}</button>
+        <button onClick={() => { setSelectedPage(page => page === numberOfPages ? page : page + 1) }}>{">"}</button>
       </div>
     </div>
   )

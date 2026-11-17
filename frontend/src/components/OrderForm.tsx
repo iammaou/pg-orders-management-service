@@ -8,12 +8,13 @@ interface props {
   postOrPut: "POST" | "PUT",
   selectedId: string,
   onClose: () => void,
-  onSuccess: (data: Order[]) => void,
+  onSuccessPOST: (data: Order) => void,
+  onSuccessPUT: (data: Order) => void,
   orderData: Order[],
   setSelectedId: () => void
 }
 
-export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelectedId, onClose, onSuccess, orderData }: props) => {
+export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelectedId, onClose, onSuccessPOST, onSuccessPUT, orderData }: props) => {
   const [quantityGroups, setQuantityGroups] = useState<NewQuantityGroup[]>(
     [
       {
@@ -120,7 +121,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
             var newOrders: Order[] = [...orderData];
             newOrders.push(data);
 
-            onSuccess(newOrders);
+            onSuccessPOST(data);
             resetState();
             setSelectedId();
             onClose();
@@ -147,10 +148,11 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
             alert("Failed to send data!");
           } else {
             const data: Order = await response.json();
+            console.log(data);
 
-            const newOrders: Order[] = orderData.map(order => order.id === selectedId ? data : order);
+            // const newOrders: Order[] = orderData.map(order => order.id === selectedId ? data : order);
 
-            onSuccess(newOrders);
+            onSuccessPUT(data);
             resetState();
             setSelectedId();
             onClose();
