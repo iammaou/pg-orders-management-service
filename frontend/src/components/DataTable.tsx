@@ -63,6 +63,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
     await apiFetch(`?Page=${selectedPage}&SortBy=${sortBy}&IsDescending=${descending}${statusFilter === "null" ? "" : "&Status=" + statusFilter}`, { method: 'GET' }).then((res) => {
       if (res.status === 401) {
         onApiKeyReset();
+        return;
       }
       if (!res.ok) {
         throw new Error(`Get failed: ${res.status}`);
@@ -346,16 +347,25 @@ export const DataTable = ({ onApiKeyReset }: props) => {
         setDataTableFormShown(false);
         setDataTableHidden(false);
       }} orderData={orderData} onSuccess={(data: Order[]) => { setOrderData(data) }} />
-      <ConfirmDelete orderName={deleteOrderName} orderId={deleteOrderId} deleteWindowVisible={deleteWindowVisible} orderData={orderData} setOrderData={(newOrderData:Order[]) => setOrderData(newOrderData)} onClose={() => {
+      <ConfirmDelete orderName={deleteOrderName} orderId={deleteOrderId} deleteWindowVisible={deleteWindowVisible} onClose={() => {
         setDeleteOrderId('');
         setDeleteOrderName('');
         setDeleteWindowVisible(false);
         setDataTableHidden(false);
+      }} onDelete={(id:string) => {
+        setOrderData(prev => {
+          const next = prev.filter(order => order.id !== id);
+          if(next.length < 1){
+            setSelectedPage(page => page === 1 ? page : page - 1);
+          }
+          return next;
+        })
+
       }}/>
       <div className={`flex lg:text-3xl lg:pt-5 gap-2 justify-center ${dataTableHidden ? "hidden" : null}`}>
-        <button onClick={() => { setSelectedPage(selectedPage === 1 ? selectedPage : selectedPage - 1) }}>{"<"}</button>
+        <button onClick={() => { setSelectedPage(page => page === 1 ? page : page - 1) }}>{"<"}</button>
         <p>{`${selectedPage}/${numberOfPages}`}</p>
-        <button onClick={() => { setSelectedPage(selectedPage === numberOfPages ? selectedPage : selectedPage + 1) }}>{">"}</button>
+        <button onClick={() => { setSelectedPage(page => page === 1 ? page : page + 1) }}>{">"}</button>
       </div>
     </div>
   )
