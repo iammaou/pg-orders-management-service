@@ -58,8 +58,8 @@ export const DataTable = ({ onApiKeyReset }: props) => {
   const [deleteOrderName, setDeleteOrderName] = useState<string>('');
   const [deleteOrderId, setDeleteOrderId] = useState<string>('');
 
-  async function getOrders() {
-    await apiFetch(`?Page=${selectedPage}&SortBy=${sortBy}&IsDescending=${descending}${statusFilter === "null" ? "" : "&Status=" + statusFilter}`, { method: 'GET' }).then((res) => {
+  async function getOrders(signal?:AbortSignal) {
+    await apiFetch(`?Page=${selectedPage}&SortBy=${sortBy}&IsDescending=${descending}${statusFilter === "null" ? "" : "&Status=" + statusFilter}`, { method: 'GET', signal }).then((res) => {
       if (res.status === 401) {
         onApiKeyReset();
         return;
@@ -97,7 +97,8 @@ export const DataTable = ({ onApiKeyReset }: props) => {
   }
 
   useEffect(() => {
-    getOrders();
+    const signal = new AbortController();
+    getOrders(signal.signal);
     setSelectedPage(1);
   }, [selectedPage, descending, sortBy, statusFilter]);
 
