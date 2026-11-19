@@ -88,7 +88,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
     return await apiFetch(!id ? "" : id, { method: postOrPut.toUpperCase(), body: JSON.stringify(payload) });
   }
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!submitting) {
@@ -148,9 +148,6 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
             alert("Failed to send data!");
           } else {
             const data: Order = await response.json();
-            console.log(data);
-
-            // const newOrders: Order[] = orderData.map(order => order.id === selectedId ? data : order);
 
             onSuccessPUT(data);
             resetState();

@@ -42,6 +42,12 @@ const emptyOrder: Order = {
   totalPrice: 0
 }
 
+export interface deleteArray {
+  id: string,
+  name: string,
+  value: boolean
+}
+
 export const DataTable = ({ onApiKeyReset }: props) => {
   const [dataTableFormShown, setDataTableFormShown] = useState<boolean>(false);
   const [dataTableHidden, setDataTableHidden] = useState<boolean>(false)
@@ -51,39 +57,60 @@ export const DataTable = ({ onApiKeyReset }: props) => {
   const [selectedOrder, setSelectedOrder] = useState<Order>(emptyOrder);
   const [selectedPage, setSelectedPage] = useState<number>(1);
   const [numberOfPages, setNumberOfPages] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
   const [sortBy, setSortBy] = useState<"createdAt" | "deadline">("createdAt");
   const [descending, setDescending] = useState<boolean>(false);
   const [statusFilter, setStatusFilter] = useState<"Created" | "Ordered" | "Arrived" | "Finished" | "ReportedAsFinished" | "Delivered" | "null">("null");
   const [deleteWindowVisible, setDeleteWindowVisible] = useState<boolean>(false);
-  const [deleteOrderName, setDeleteOrderName] = useState<string>('');
-  const [deleteOrderId, setDeleteOrderId] = useState<string>('');
+  const [deleteOrderQue, setDeleteOrderQue] = useState<deleteArray[]>([]);
+  const [isFetching, setIsFetching] = useState<boolean>(false);
+  const [deleteSelected, setDeleteSelected] = useState<deleteArray[]>([]);
+  const [numOfSelected, setNumOfSelected] = useState<number>(0);
 
-  async function getOrders(signal?:AbortSignal) {
-    await apiFetch(`?Page=${selectedPage}&SortBy=${sortBy}&IsDescending=${descending}${statusFilter === "null" ? "" : "&Status=" + statusFilter}`, { method: 'GET', signal }).then((res) => {
-      if (res.status === 401) {
-        onApiKeyReset();
-        return;
-      }
-      if (!res.ok) {
-        throw new Error(`Get failed: ${res.status}`);
-      } else{
-        return res.json();
-      }
+  async function getOrders(signal?: AbortSignal) {
+    if (!isFetching) {
+      setIsFetching(true);
+      await apiFetch(`?Page=${selectedPage}&PageSize=${pageSize}&SortBy=${sortBy}&IsDescending=${descending}${statusFilter === "null" ? "" : "&Status=" + statusFilter}`, { method: 'GET', signal }).then((res) => {
+        if (res.status === 401) {
+          onApiKeyReset();
+          return;
+        }
+        if (!res.ok) {
+          throw new Error(`Get failed: ${res.status}`);
+        } else {
+          return res.json();
+        }
 
-    })
-      .then((data) => {
-        setSelectedPage(data.page);
-        setNumberOfPages(Math.max(1, Math.ceil(data.totalCount / data.pageSize)));
-        setOrderData(data.items);
-      }).catch((err) => {
-        alert(`Error: ${err}`)
       })
+        .then((data) => {
+          setSelectedPage(data.page);
+          setNumberOfPages(Math.max(1, Math.ceil(data.totalCount / data.pageSize)));
+          setPageSize(data.pageSize);
+
+          var orderItems: Order[] = data.items;
+
+          setOrderData(data.items);
+          if (deleteSelected.length === 0) {
+            var copyDeleteSelected: deleteArray[] = [];
+            orderItems.forEach(order => {
+              copyDeleteSelected = [...copyDeleteSelected, {
+                id: order.id,
+                name: order.name,
+                value: false
+              }]
+            });
+            setDeleteSelected(copyDeleteSelected);
+          }
+        }).catch((err) => {
+          alert(`Error: ${err}`)
+        })
+      setIsFetching(false);
+    }
   }
 
-  async function requestDelete(id: string, name:string) {
+  async function requestDelete() {
     setDataTableHidden(true);
-    setDeleteOrderName(name);
-    setDeleteOrderId(id);
+    setDeleteOrderQue(deleteSelected);
     setDeleteWindowVisible(true);
   }
 
@@ -96,11 +123,43 @@ export const DataTable = ({ onApiKeyReset }: props) => {
     dataTableFormShown == false ? setDataTableFormShown(true) : setDataTableFormShown(false);
   }
 
+  const handleCheckboxClick = (index?: number) => {
+    var copyDeleteSelected: deleteArray[] = [...deleteSelected];
+
+    if (index) {
+      copyDeleteSelected[index - 1].value = !copyDeleteSelected[index - 1].value;
+    } else if (!index && numOfSelected === copyDeleteSelected.length) {
+      copyDeleteSelected.forEach(order => {
+        order.value = false;
+      })
+    } else {
+      copyDeleteSelected.forEach(order => {
+        order.value = true;
+      })
+    }
+
+    setDeleteSelected(copyDeleteSelected);
+  }
+
+  useEffect(() => {
+    let selected = 0;
+
+    deleteSelected.forEach(order => {
+      if (order.value === true) {
+        selected++;
+      }
+    })
+    setNumOfSelected(selected);
+  }, [deleteSelected])
+
   useEffect(() => {
     const signal = new AbortController();
     getOrders(signal.signal);
-    setSelectedPage(1);
   }, [selectedPage, descending, sortBy, statusFilter]);
+
+  useEffect(() => {
+    setSelectedPage(1);
+  }, [descending, sortBy, statusFilter]);
 
   function useBreakpoint() {
     const isMobile = useMediaQuery({ query: '(max-width: 640px)' });
@@ -127,7 +186,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
     }
   }
 
-  const statusSelect = (index:number, order: Order) => {
+  const statusSelect = (index: number, order: Order) => {
     return <select className='white' name="statusSelect" id={`statusSelect-${index}`} value={order.status} onChange={
       async (e) => {
         try {
@@ -172,10 +231,27 @@ export const DataTable = ({ onApiKeyReset }: props) => {
 
   return (
     <div className={`${Cookies.get('x-api-key') == undefined ? "hidden" : ""} relative w-full lg:w-5/6 text-white pt-5 mx-auto`}>
+      {
+        isFetching ? <h1 className='p-10 text-5xl text-center'>Loading...</h1> : null
+      }
       <div className={`${dataTableHidden || dataTableFormShown ? "blur-sm pointer-events-none z-0" : ""} white-border p-1 `}>
         <table className='text-xl md:text-xl lg:text-2xl w-full text-center'>
           <thead className='text-3xl md:text-xl lg:text-3xl  border-b'>
             <tr>
+              <th>
+                <input type="checkbox" className='checkbox' checked={(() => {
+                  let numOfSelected = 0;
+                  deleteSelected.forEach(selection => {
+                    if (selection.value == true) {
+                      numOfSelected++;
+                    }
+                  })
+
+                  if (numOfSelected === deleteSelected.length) return true;
+
+                  return false;
+                })()} name="checkbox-all" id="checkbox-all" onChange={() => handleCheckboxClick()} />
+              </th>
               <th>Name</th>
               {
                 !isMobile ? <th>QuantityGroups</th> : null
@@ -184,12 +260,12 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                 !isMobile && !isTablet ?
                   <th className='text-center'>
                     <div className='flex justify-self-center gap-2'>
-                      <button  onClick={() => { handleSortChange("createdAt") }}>
+                      <button onClick={() => { handleSortChange("createdAt") }}>
                         {`Created At`}
                       </button>
 
-                        <p className={`${sortBy === "createdAt" ? "" : "hidden"} ${descending ? "rotate-180" : ""}`}>{"⏷"}
-                        </p>
+                      <p className={`${sortBy === "createdAt" ? "" : "hidden"} ${descending ? "rotate-180" : ""}`}>{"⏷"}
+                      </p>
                     </div>
                   </th>
                   : null
@@ -199,8 +275,8 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                   <button onClick={() => { handleSortChange("deadline") }}>
                     Deadline
                   </button>
-                    <p className={`${sortBy === "deadline" ? "" : "hidden"} ${descending ? "rotate-180" : ""}`}>{"⏷"}
-                    </p>
+                  <p className={`${sortBy === "deadline" ? "" : "hidden"} ${descending ? "rotate-180" : ""}`}>{"⏷"}
+                  </p>
 
                 </div>
               </th>
@@ -220,7 +296,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                       }
                     }}>
                       <option value="null" className='dark-gray'>Status</option>
-                      <option value="0"className='darker-gray'>{OrderStatusMap[0]}</option>
+                      <option value="0" className='darker-gray'>{OrderStatusMap[0]}</option>
                       <option value="1" className='dark-gray'>{OrderStatusMap[1]}</option>
                       <option value="2" className='darker-gray'>{OrderStatusMap[2]}</option>
                       <option value="3" className='dark-gray'>{OrderStatusMap[3]}</option>
@@ -241,6 +317,10 @@ export const DataTable = ({ onApiKeyReset }: props) => {
             {orderData.map((order, index) => {
               return (
                 <tr key={order.id} className={`${(index + 2) % 2 == 0 ? "bg-[#171717]" : ""}`}>
+                  <td>
+                    <input type="checkbox" className='checkbox' checked={deleteSelected[index].value} id={`checkbox-${index}`} onChange={() => handleCheckboxClick(index + 1)} />
+                  </td>
+
                   <td>{order.name}</td>
 
                   {
@@ -281,32 +361,37 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                       {
                         isMobile ? <button onClick={() => { handleOnViewMore(index) }}><img src={`./icon-view-more.png`} alt="view more icon" /></button> : null
                       }
-                      <button onClick={() => handleOrderForm("PUT", order.id)}><img src={`./icon-edit.png`} alt='edit icon' /></button>
-                      <button onClick={() => { requestDelete(order.id, order.name) }}><img src={`./icon-delete.png`} alt='delete icon' /></button>
+                      <button onClick={() => handleOrderForm("PUT", order.id)}>
+                        Edit
+                      </button>
                     </div>
                   </td>
                 </tr>
               );
             })}
-            <tr className='border-t'>
-              <td colSpan={isMobile ? 3 : isTablet ? 5 : 7}>
-                <div className='text-center text-xl lg:text-5xl'>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      handleOrderForm("POST");
-                    }}
-                  >
-                    +
-                  </button>
-                </div>
-              </td>
-            </tr>
           </tbody>
         </table>
       </div>
+      <div className='text-center w-5 h-5 flex justify-center text-xl lg:text-5xl fixed bottom-10 right-20 px-10 py-10 rounded-lg border border-[#980b17] bg-[#e81123] hover:bg-[#980b17]'>
+        <button
+          type="button"
+          className='flex items-center justify-center'
+          onClick={() => {
+            handleOrderForm("POST");
+          }}
+        >
+          +
+        </button>
+      </div>
+      <div className={`${numOfSelected === 0 ? "hidden" : ""} text-center w-5 h-5 flex justify-center text-lg lg:text-2xl fixed bottom-10 right-45 px-15 py-10 rounded-lg border border-[#980b17] bg-[#e81123] hover:bg-[#980b17]`}>
+        <button
+          onClick={() => {requestDelete()}}
+          className='flex items-center justify-center'>
+          Delete
+        </button>
+      </div>
       {
-        (dataTableHidden && isMobile && selectedOrder.id !== '') ? 
+        (dataTableHidden && isMobile && selectedOrder.id !== '') ?
           <div className='dark-gray absolute text-2xl w-full white-border top-3 z-1 p-4'>
             <div className='w-full relative'>
               <button
@@ -347,29 +432,30 @@ export const DataTable = ({ onApiKeyReset }: props) => {
       <OrderForm dataTableFormShown={dataTableFormShown} postOrPut={postOrPut} selectedId={selectedId} setSelectedId={() => setSelectedId("")} onClose={() => {
         setDataTableFormShown(false);
         setDataTableHidden(false);
-      }} orderData={orderData} onSuccessPOST={(data: Order) => { 
-        if(orderData.length >= 10){
+      }} orderData={orderData} onSuccessPOST={(data: Order) => {
+        if (orderData.length >= 10) {
           setNumberOfPages(prev => prev + 1);
         }
-        setOrderData(prev => prev.length >= 10 ? [...prev] :[...prev, data]);
-      }} onSuccessPUT={(data:Order) => {
+        setOrderData(prev => prev.length >= 10 ? [...prev] : [...prev, data]);
+      }} onSuccessPUT={(data: Order) => {
         setOrderData(prev => prev.map(order => order.id === data.id ? data : order));
-      }}/>
-      <ConfirmDelete orderName={deleteOrderName} orderId={deleteOrderId} deleteWindowVisible={deleteWindowVisible} onClose={() => {
-        setDeleteOrderId('');
-        setDeleteOrderName('');
+      }} />
+      <ConfirmDelete orderQue={deleteOrderQue} deleteWindowVisible={deleteWindowVisible} onClose={() => {
+        setDeleteOrderQue([]);
         setDeleteWindowVisible(false);
         setDataTableHidden(false);
-      }} onDelete={(id:string) => {
+      }} onDelete={(id: string) => {
         setOrderData(prev => {
           const next = prev.filter(order => order.id !== id);
-          if(next.length < 1){
+          if (next.length < 1) {
             setSelectedPage(page => page === 1 ? page : page - 1);
           }
           return next;
         })
-
-      }}/>
+        setDeleteSelected(prev => {
+          return prev.filter(order => order.id !== id)
+        })
+      }} />
       <div className={`flex lg:text-3xl lg:pt-5 gap-2 justify-center ${dataTableHidden ? "hidden" : null}`}>
         <button onClick={() => { setSelectedPage(page => page === 1 ? page : page - 1) }}>{"<"}</button>
         <p>{`${selectedPage}/${numberOfPages}`}</p>
