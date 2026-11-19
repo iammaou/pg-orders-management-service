@@ -89,18 +89,19 @@ export const DataTable = ({ onApiKeyReset }: props) => {
 
           var orderItems: Order[] = data.items;
 
-          setOrderData(data.items);
-          if (deleteSelected.length === 0) {
-            var copyDeleteSelected: deleteArray[] = [];
-            orderItems.forEach(order => {
-              copyDeleteSelected = [...copyDeleteSelected, {
-                id: order.id,
-                name: order.name,
-                value: false
-              }]
-            });
-            setDeleteSelected(copyDeleteSelected);
-          }
+          setOrderData(orderItems);
+
+          var copyDeleteSelected: deleteArray[] = [];
+          orderItems.forEach(order => {
+            copyDeleteSelected = [...copyDeleteSelected, {
+              id: order.id,
+              name: order.name,
+              value: false
+            }]
+          });
+
+          setDeleteSelected(copyDeleteSelected);
+
         }).catch((err) => {
           alert(`Error: ${err}`)
         })
@@ -109,8 +110,8 @@ export const DataTable = ({ onApiKeyReset }: props) => {
   }
 
   async function requestDelete() {
-    setDataTableHidden(true);
     setDeleteOrderQue(deleteSelected);
+    setDataTableHidden(true);
     setDeleteWindowVisible(true);
   }
 
@@ -153,8 +154,8 @@ export const DataTable = ({ onApiKeyReset }: props) => {
   }, [deleteSelected])
 
   useEffect(() => {
-    const signal = new AbortController();
-    getOrders(signal.signal);
+    const abortController = new AbortController();
+    getOrders(abortController.signal);
   }, [selectedPage, descending, sortBy, statusFilter]);
 
   useEffect(() => {
@@ -238,7 +239,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
         <table className='text-xl md:text-xl lg:text-2xl w-full text-center'>
           <thead className='text-3xl md:text-xl lg:text-3xl  border-b'>
             <tr>
-              <th>
+              <th className={`${orderData.length === 0 ? "hidden" : ""}`}>
                 <input type="checkbox" className='checkbox' checked={(() => {
                   let numOfSelected = 0;
                   deleteSelected.forEach(selection => {
@@ -327,7 +328,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                     !isMobile ?
                       <td>{order.quantityGroups.map((group) => {
                         return (
-                          <div key={group.id}>
+                          <div key={group.id} className='flex justify-center gap-3 text-left'>
                             <h4>{group.groupKey}</h4>
                             <div>{group.quantities.map((quantity) => {
                               return (
@@ -385,7 +386,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
       </div>
       <div className={`${numOfSelected === 0 ? "hidden" : ""} text-center w-5 h-5 flex justify-center text-lg lg:text-2xl fixed bottom-10 right-45 px-15 py-10 rounded-lg border border-[#980b17] bg-[#e81123] hover:bg-[#980b17]`}>
         <button
-          onClick={() => {requestDelete()}}
+          onClick={() => { requestDelete() }}
           className='flex items-center justify-center'>
           Delete
         </button>
@@ -444,6 +445,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
         setDeleteOrderQue([]);
         setDeleteWindowVisible(false);
         setDataTableHidden(false);
+
       }} onDelete={(id: string) => {
         setOrderData(prev => {
           const next = prev.filter(order => order.id !== id);
@@ -451,10 +453,13 @@ export const DataTable = ({ onApiKeyReset }: props) => {
             setSelectedPage(page => page === 1 ? page : page - 1);
           }
           return next;
-        })
+        });
         setDeleteSelected(prev => {
           return prev.filter(order => order.id !== id)
-        })
+        });
+
+        const abortController = new AbortController();
+        getOrders(abortController.signal);
       }} />
       <div className={`flex lg:text-3xl lg:pt-5 gap-2 justify-center ${dataTableHidden ? "hidden" : null}`}>
         <button onClick={() => { setSelectedPage(page => page === 1 ? page : page - 1) }}>{"<"}</button>
