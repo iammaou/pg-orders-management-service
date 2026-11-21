@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import { type NewOrder, type NewQuantityGroup, type EditOrder, type Order } from "../types/Interfaces";
 import { apiFetch } from "../apiFetch";
-import { type FormEvent } from 'react';
 
 interface props {
   dataTableFormShown: boolean,
