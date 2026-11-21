@@ -26,7 +26,7 @@ function App() {
       <header className='w-full flex justify-between'>
         <img src="./pg-logo.png" alt="p&g logo" className='w-1/6 sm:w-1/9 md:w-1/11 lg:w-1/25'/>
         <div className='flex justify-center-safe h-full my-auto'>
-          <button onClick={handleApiKeyChange} className={`${Cookies.get('x-api-key') == undefined ? "hidden" : ""} red-button kedebideri-semibold text-xl text-white`}>Sign Out</button>
+          <button onClick={handleApiKeyChange} className={`${Cookies.get('x-api-key') == undefined ? "hidden" : ""} red-button kedebideri-semibold button-size`}>Sign Out</button>
         </div>
       </header>
       <div>

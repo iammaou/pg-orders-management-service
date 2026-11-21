@@ -32,14 +32,14 @@ function ConfirmDelete({ deleteWindowVisible, orderQue, onClose, onDelete }: pro
           onDelete(order.id);
         }
       }
-      onClose();
-      setProcessing(false);
     })
+    onClose();
+    setProcessing(false);
   }
 
   const [processing, setProcessing] = useState<boolean>(false);
   return (
-    <div role='dialog' className={`${deleteWindowVisible ? "" : "hidden"} fixed white-border top-50 left-[50%] translate-x-[-50%] p-4 w-3/5 dark-gray text-2xl flex flex-col gap-5`}>
+    <div role='dialog' className={`${deleteWindowVisible ? "" : "hidden"} fixed white-border top-50 lg:top-100 left-[50%] translate-x-[-50%] p-4 w-3/5 lg:w-2/7  dark-gray text-2xl flex flex-col gap-5`}>
       <h2>Are you sure you want to delete below listed orders?</h2>
       {
         orderQue.map((order, index) => {
@@ -49,8 +49,11 @@ function ConfirmDelete({ deleteWindowVisible, orderQue, onClose, onDelete }: pro
         })
       }
       <div className='flex gap-3 justify-end'>
-        <button type='button' onClick={() => { onYes() }} className='red-button px-6'>{processing ? "Deleting..." : "Yes"}</button>
-        <button autoFocus type='button' onClick={() => { onClose() }} className='white-border p-2 px-5 hover:bg-white hover:text-black'>No</button>
+        <button type='button' onClick={() => { onYes() }} className='red-button button-size'>{processing ? "Deleting..." : "Yes"}</button>
+        <button autoFocus type='button' onClick={() => { 
+          setProcessing(false);
+          onClose() 
+          }} className='white-border button-size hover:bg-white hover:text-black'>No</button>
 
       </div>
     </div>

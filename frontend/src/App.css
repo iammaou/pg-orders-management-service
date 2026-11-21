@@ -50,9 +50,26 @@
 
 .red-button{
   border: solid #980b17 1px;
-  border-radius: 8px;
-  padding: 16px 20px;
+  color:white;
   background-color: #e81123;
+}
+
+.button-size{
+  width: 75px;
+  height: 40px;
+  border-radius: 8px;
+  font-size: large;
+  font-weight: bolder;
+}
+
+.small-button-size{
+  width: 40px;
+  height: 35px;
+}
+
+.small-button-size:hover{
+  background-color: white;
+  color: #1f1f1f;
 }
 
 .red-button:hover{
@@ -70,6 +87,7 @@ input[type="checkbox"] {
   height: 20px;
   margin: 6px;
   padding: 0;
+  margin-top: 11px;
   border: 2px solid #e81123;
   appearance: none;
   background-color: transparent;

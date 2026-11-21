@@ -125,21 +125,33 @@ export const DataTable = ({ onApiKeyReset }: props) => {
   }
 
   const handleCheckboxClick = (index?: number) => {
-    var copyDeleteSelected: deleteArray[] = [...deleteSelected];
+    // var copyDeleteSelected: deleteArray[] = [...deleteSelected];
 
-    if (index) {
-      copyDeleteSelected[index - 1].value = !copyDeleteSelected[index - 1].value;
-    } else if (!index && numOfSelected === copyDeleteSelected.length) {
-      copyDeleteSelected.forEach(order => {
-        order.value = false;
-      })
-    } else {
-      copyDeleteSelected.forEach(order => {
-        order.value = true;
-      })
+    // if (index) {
+    //   copyDeleteSelected[index - 1].value = !copyDeleteSelected[index - 1].value;
+    // } else if (!index && numOfSelected === copyDeleteSelected.length) {
+    //   copyDeleteSelected.forEach(order => {
+    //     order.value = false;
+    //   })
+    // } else {
+    //   copyDeleteSelected.forEach(order => {
+    //     order.value = true;
+    //   })
+    // }
+
+    // setDeleteSelected(copyDeleteSelected);
+
+    if(index === undefined) {
+      const allSelected = numOfSelected === deleteSelected.length && deleteSelected.length >0;
+
+      setDeleteSelected(prev => prev.map(o => ({...o, value: !allSelected})));
+      return;
     }
 
-    setDeleteSelected(copyDeleteSelected);
+    const i = index - 1;
+    setDeleteSelected(prev => 
+      prev.map((order, j) => j===i ? {...order, value: !order.value} : order)
+    )
   }
 
   useEffect(() => {
@@ -236,8 +248,8 @@ export const DataTable = ({ onApiKeyReset }: props) => {
         isFetching ? <h1 className='p-10 text-5xl text-center'>Loading...</h1> : null
       }
       <div className={`${dataTableHidden || dataTableFormShown ? "blur-sm pointer-events-none z-0" : ""} white-border p-1 `}>
-        <table className='text-xl md:text-xl lg:text-2xl w-full text-center'>
-          <thead className='text-3xl md:text-xl lg:text-3xl  border-b'>
+        <table className='text-xl md:text-lg lg:text-3xl w-full text-center'>
+          <thead className='text-2xl md:text-md lg:text-3xl  border-b'>
             <tr>
               <th className={`${orderData.length === 0 ? "hidden" : ""}`}>
                 <input type="checkbox" className='checkbox' checked={(() => {
@@ -357,12 +369,12 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                   {
                     !isMobile && !isTablet ? <td>{`€${order.totalPrice}`}</td> : null
                   }
-                  <td className='w-1/3 md:w-1/6 lg:w-1/10'>
-                    <div className='flex gap-1'>
+                  <td className='w-1/3 md:w-1/6 lg:w-1/20'>
+                    <div className='flex gap-1 justify-center'>
                       {
-                        isMobile ? <button onClick={() => { handleOnViewMore(index) }}><img src={`./icon-view-more.png`} alt="view more icon" /></button> : null
+                        isMobile ? <button className='button-size border border-white hover:bg-white hover:text-[#1f1f1f]' onClick={() => { handleOnViewMore(index) }}>View More</button> : null
                       }
-                      <button onClick={() => handleOrderForm("PUT", order.id)}>
+                      <button className='button-size border-white border hover:bg-white hover:text-[#1f1f1f]' onClick={() => handleOrderForm("PUT", order.id)}>
                         Edit
                       </button>
                     </div>
@@ -373,10 +385,10 @@ export const DataTable = ({ onApiKeyReset }: props) => {
           </tbody>
         </table>
       </div>
-      <div className='text-center w-5 h-5 flex justify-center text-xl lg:text-5xl fixed bottom-10 right-20 px-10 py-10 rounded-lg border border-[#980b17] bg-[#e81123] hover:bg-[#980b17]'>
+      <div className={`${dataTableHidden || dataTableFormShown ? "hidden" : null} text-center flex justify-center text-xl lg:text-5xl fixed bottom-10 right-20 rounded-lg border border-[#980b17] bg-[#e81123] hover:bg-[#980b17]`}>
         <button
           type="button"
-          className='flex items-center justify-center'
+          className='flex items-center justify-center w-5 h-5 p-10'
           onClick={() => {
             handleOrderForm("POST");
           }}
@@ -384,7 +396,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
           +
         </button>
       </div>
-      <div className={`${numOfSelected === 0 ? "hidden" : ""} text-center w-5 h-5 flex justify-center text-lg lg:text-2xl fixed bottom-10 right-45 px-15 py-10 rounded-lg border border-[#980b17] bg-[#e81123] hover:bg-[#980b17]`}>
+      <div className={`${numOfSelected === 0 || dataTableHidden || dataTableFormShown ? "hidden" : ""} text-center w-5 h-5 flex justify-center text-lg lg:text-2xl fixed bottom-10 right-45 px-15 py-10 rounded-lg border border-[#980b17] bg-[#e81123] hover:bg-[#980b17]`}>
         <button
           onClick={() => { requestDelete() }}
           className='flex items-center justify-center'>
@@ -393,11 +405,11 @@ export const DataTable = ({ onApiKeyReset }: props) => {
       </div>
       {
         (dataTableHidden && isMobile && selectedOrder.id !== '') ?
-          <div className='dark-gray absolute text-2xl w-full white-border top-3 z-1 p-4'>
+          <div className='dark-gray absolute text-2xl w-3/4 white-border top-3 z-1 p-4 flex justify-center left-1/2 -translate-x-1/2'>
             <div className='w-full relative'>
               <button
                 type="button"
-                className='red-button absolute px-2 top-0 right-0'
+                className='red-button absolute right-0 px-3 rounded-lg'
                 onClick={() => {
                   setSelectedOrder(emptyOrder);
                   setDataTableHidden(false);
@@ -461,7 +473,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
         const abortController = new AbortController();
         getOrders(abortController.signal);
       }} />
-      <div className={`flex lg:text-3xl lg:pt-5 gap-2 justify-center ${dataTableHidden ? "hidden" : null}`}>
+      <div className={`flex text-3xl pt-5 gap-2 justify-center ${dataTableHidden || dataTableFormShown ? "hidden" : null}`}>
         <button onClick={() => { setSelectedPage(page => page === 1 ? page : page - 1) }}>{"<"}</button>
         <p>{`${selectedPage}/${numberOfPages}`}</p>
         <button onClick={() => { setSelectedPage(page => page === numberOfPages ? page : page + 1) }}>{">"}</button>
