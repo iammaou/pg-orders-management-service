@@ -109,7 +109,7 @@ builder.Services.AddRateLimiter(options =>
     options.AddPolicy("StrictPolicy", context => 
         RateLimitPartition.GetFixedWindowLimiter(context.Connection.RemoteIpAddress?.ToString(), _ => new FixedWindowRateLimiterOptions
         {
-            PermitLimit = 20,
+            PermitLimit = 30,
             Window = TimeSpan.FromSeconds(60)
         }));
 });
