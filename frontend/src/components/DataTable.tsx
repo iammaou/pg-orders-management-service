@@ -450,6 +450,11 @@ export const DataTable = ({ onApiKeyReset }: props) => {
           setNumberOfPages(prev => prev + 1);
         }
         setOrderData(prev => prev.length >= 10 ? [...prev] : [...prev, data]);
+        setDeleteSelected(prev => [...prev, {
+          id: data.id,
+          name: data.name,
+          value: false
+        }])
       }} onSuccessPUT={(data: Order) => {
         setOrderData(prev => prev.map(order => order.id === data.id ? data : order));
       }} />

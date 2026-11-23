@@ -35,7 +35,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
   const [submitting, setSubmitting] = useState<boolean>(false);
 
   const quantityGroupValueHelper = (index: number, groupName: string) => {
-    setQuantityGroups(prev => prev.map((g, i) => i === index ? { ...g, groupKey: groupName } : g));
+    setQuantityGroups(prev => prev.map((g, i) => i === index ? { ...g, groupKey: groupName.toUpperCase() } : g));
   }
 
   const modifyQuantityGroupAmount = (index?: number) => {
@@ -246,7 +246,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
                         <div key={jndex}>
                           <div className="flex gap-2 pl-8 items-center">
                             <label htmlFor={`size-${index}-${jndex}`}>Size:</label>
-                            <input className="w-1/3 lg:w-1/5  white-border p-1" autoComplete='off' type="text" id={`size-${index}-${jndex}`} name={`size-${index}-${jndex}`} value={quantityGroups[index].quantities[jndex].size} onChange={(e) => { setSize(index, jndex, e.target.value) }} required placeholder="XL" />
+                            <input className="w-1/3 lg:w-1/5  white-border p-1" autoComplete='off' type="text" id={`size-${index}-${jndex}`} name={`size-${index}-${jndex}`} value={quantityGroups[index].quantities[jndex].size} onChange={(e) => { setSize(index, jndex, String(e.target.value).toUpperCase()) }} required placeholder="XL" />
                             <input className="w-1/5 lg:w-1/8 white-border p-1" autoComplete='off' type="number" id={`quantity-${index}-${jndex}`} name={`quantity-${index}-${jndex}`} value={quantityGroups[index].quantities[jndex].quantity == 0 ? "" : quantityGroups[index].quantities[jndex].quantity} onChange={(e) => { setQuantity(index, jndex, Number.isNaN(e.target.valueAsNumber) ? 0 : Number(e.target.valueAsNumber))}} required placeholder="3" />
                             <button className="white-border small-button-size" type="button" onClick={() => { modifyQuantityAmout(index) }}>+</button>
                             <button className="white-border small-button-size" type="button" onClick={() => { modifyQuantityAmout(index, jndex) }}>-</button>
