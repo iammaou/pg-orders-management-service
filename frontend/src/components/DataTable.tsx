@@ -130,12 +130,14 @@ export const DataTable = ({ onApiKeyReset }: props) => {
 
       setDeleteSelected(prev => prev.map(o => ({...o, value: !allSelected})));
       return;
+    } else{
+      const i = index - 1;
+      setDeleteSelected(prev => {
+        console.log(prev, prev.map((order, j) => j === i ? {...order, value: !order.value} : order))
+        return prev.map((order, j) => j === i ? {...order, value: !order.value} : order)
+      }
+      )
     }
-
-    const i = index - 1;
-    setDeleteSelected(prev => 
-      prev.map((order, j) => j===i ? {...order, value: !order.value} : order)
-    )
   }
 
   useEffect(() => {
@@ -380,10 +382,12 @@ export const DataTable = ({ onApiKeyReset }: props) => {
           +
         </button>
       </div>
-      <div className={`${numOfSelected === 0 || dataTableHidden || dataTableFormShown ? "hidden" : ""} text-center w-5 h-5 flex justify-center text-lg lg:text-2xl fixed bottom-10 right-45 px-15 py-10 rounded-lg border border-[#980b17] bg-[#e81123] hover:bg-[#980b17]`}>
+      <div className={`${numOfSelected === 0 || dataTableHidden || dataTableFormShown ? "hidden" : ""} text-center flex justify-center text-lg lg:text-2xl fixed bottom-10 right-45`}>
         <button
-          onClick={() => { requestDelete() }}
-          className='flex items-center justify-center'>
+          onClick={() => { 
+            console.log("click")
+            requestDelete() }}
+          className='w-30 h-20.5 items-center rounded-lg border border-[#980b17] bg-[#e81123] hover:bg-[#980b17]'>
           Delete
         </button>
       </div>

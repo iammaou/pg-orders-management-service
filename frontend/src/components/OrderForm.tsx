@@ -291,8 +291,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
           </div>
 
           <div>
-            <label htmlFor="CreatedAt" className={`${postOrPut == "PUT" ? "" : "hidden"} pr-2`}>Created At:</label>
-            <label htmlFor="CreatedAt" className={`${postOrPut == "PUT" ? "" : "hidden"}`}>{new Date(createdAt).toLocaleDateString("en-GB")}</label>
+            <h3 className={`${postOrPut == "PUT" ? "" : "hidden"} pr-2`}>Created At: {new Date(createdAt).toLocaleDateString("en-GB")}</h3>
           </div>
           <div className="flex justify-center pt-5 gap-3">
             <button type="submit" className="red-button button-size">Submit</button>
