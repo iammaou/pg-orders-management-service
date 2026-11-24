@@ -6,6 +6,7 @@ import "../App.css"
 import { apiFetch } from '../apiFetch';
 import { useMediaQuery } from 'react-responsive';
 import ConfirmDelete from './ConfirmDelete';
+import FunnelForFilters from './FunnelForFilters';
 
 interface props {
   onApiKeyReset: () => void
@@ -39,7 +40,8 @@ const emptyOrder: Order = {
   status: 0,
   createdAt: '',
   deadline: '',
-  totalPrice: 0
+  totalPrice: 0,
+  isHandover: false
 }
 
 export interface deleteArray {
@@ -61,16 +63,18 @@ export const DataTable = ({ onApiKeyReset }: props) => {
   const [sortBy, setSortBy] = useState<"createdAt" | "deadline">("createdAt");
   const [descending, setDescending] = useState<boolean>(false);
   const [statusFilter, setStatusFilter] = useState<"Created" | "Ordered" | "Arrived" | "Finished" | "ReportedAsFinished" | "Delivered" | "null">("null");
+  const [filterIsHandover, setFilterIsHandover] = useState<boolean>(false);
   const [deleteWindowVisible, setDeleteWindowVisible] = useState<boolean>(false);
   const [deleteOrderQue, setDeleteOrderQue] = useState<deleteArray[]>([]);
   const [isFetching, setIsFetching] = useState<boolean>(false);
   const [deleteSelected, setDeleteSelected] = useState<deleteArray[]>([]);
   const [numOfSelected, setNumOfSelected] = useState<number>(0);
+  const [filterPopUpVisible, setFilterPopUpVisible] = useState<boolean>(false);
 
   async function getOrders(signal?: AbortSignal) {
     if (!isFetching) {
       setIsFetching(true);
-      await apiFetch(`?Page=${selectedPage}&PageSize=${pageSize}&SortBy=${sortBy}&IsDescending=${descending}${statusFilter === "null" ? "" : "&Status=" + statusFilter}`, { method: 'GET', signal }).then((res) => {
+      await apiFetch(`?Page=${selectedPage}&PageSize=${pageSize}&SortBy=${sortBy}&IsDescending=${descending}${statusFilter === "null" ? "" : "&Status=" + statusFilter}&isHandover=${filterIsHandover}`, { method: 'GET', signal }).then((res) => {
         if (res.status === 401) {
           onApiKeyReset();
           return;
@@ -133,7 +137,6 @@ export const DataTable = ({ onApiKeyReset }: props) => {
     } else{
       const i = index - 1;
       setDeleteSelected(prev => {
-        console.log(prev, prev.map((order, j) => j === i ? {...order, value: !order.value} : order))
         return prev.map((order, j) => j === i ? {...order, value: !order.value} : order)
       }
       )
@@ -154,7 +157,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
   useEffect(() => {
     const abortController = new AbortController();
     getOrders(abortController.signal);
-  }, [selectedPage, descending, sortBy, statusFilter]);
+  }, [selectedPage, descending, sortBy, statusFilter, filterIsHandover]);
 
   useEffect(() => {
     setSelectedPage(1);
@@ -197,7 +200,8 @@ export const DataTable = ({ onApiKeyReset }: props) => {
             totalPrice: order.totalPrice,
             quantityGroups: order.quantityGroups,
             createdAt: order.createdAt,
-            status: newStatus
+            status: newStatus,
+            isHandover: order.isHandover
           }
 
           await apiFetch(order.id, { method: "PUT", body: JSON.stringify(payload) }).then((res) => {
@@ -230,13 +234,15 @@ export const DataTable = ({ onApiKeyReset }: props) => {
 
   return (
     <div className={`${Cookies.get('x-api-key') == undefined ? "hidden" : ""} relative w-full lg:w-5/6 text-white pt-5 mx-auto`}>
-      {
-        isFetching ? <h1 className='p-10 text-5xl text-center'>Loading...</h1> : null
-      }
       <div className={`${dataTableHidden || dataTableFormShown ? "blur-sm pointer-events-none z-0" : ""} white-border p-1 `}>
         <table className='text-xl md:text-lg lg:text-3xl w-full text-center'>
-          <thead className='text-2xl md:text-md lg:text-3xl  border-b'>
-            <tr>
+          <thead className={`text-2xl md:text-md lg:text-3xl ${isFetching ? "" : "border-b"}`}>
+            <tr className={isFetching ? "" : "hidden"}>
+              <th colSpan={8}>
+                LOADING...
+              </th>
+            </tr>
+            <tr className={!isFetching ? "" : "hidden"}>
               <th className={`${orderData.length === 0 ? "hidden" : ""}`}>
                 <input type="checkbox" className='checkbox' checked={(() => {
                   let numOfSelected = 0;
@@ -282,26 +288,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
               {
                 !isMobile ?
                   <th>
-                    <select name="filter" id="filter" onChange={(e) => {
-                      const newStatus = Number(e.target.value);
-                      switch (newStatus) {
-                        case 0: setStatusFilter("Created"); break;
-                        case 1: setStatusFilter("Ordered"); break;
-                        case 2: setStatusFilter("Arrived"); break;
-                        case 3: setStatusFilter("Finished"); break;
-                        case 4: setStatusFilter("ReportedAsFinished"); break;
-                        case 5: setStatusFilter("Delivered"); break;
-                        default: setStatusFilter("null"); break;
-                      }
-                    }}>
-                      <option value="null" className='dark-gray'>Status</option>
-                      <option value="0" className='darker-gray'>{OrderStatusMap[0]}</option>
-                      <option value="1" className='dark-gray'>{OrderStatusMap[1]}</option>
-                      <option value="2" className='darker-gray'>{OrderStatusMap[2]}</option>
-                      <option value="3" className='dark-gray'>{OrderStatusMap[3]}</option>
-                      <option value="4" className='darker-gray'>{OrderStatusMap[4]}</option>
-                      <option value="5" className='dark-gray'>{OrderStatusMap[5]}</option>
-                    </select>
+                    Status
                   </th>
                   : null
               }
@@ -309,13 +296,18 @@ export const DataTable = ({ onApiKeyReset }: props) => {
               {
                 !isMobile && !isTablet ? <th>Price</th> : null
               }
-              <th className='w-10'></th>
+              <th className='w-10'>
+                <button className='button-size border-white border hover:bg-white hover:text-[#1f1f1f]' onClick={() => setFilterPopUpVisible(prev => !prev)}>Filter</button>
+                <div className={filterPopUpVisible ? "" : "hidden"}>
+                  <FunnelForFilters setStatusFilter={(status:"Created" | "Ordered" | "Arrived" | "Finished" | "ReportedAsFinished" | "Delivered" | "null") => setStatusFilter(status)} filterIsHandover={filterIsHandover} toggleFilterIsHandover={() => setFilterIsHandover(prev => !prev)}/>
+                </div>
+              </th>
             </tr>
           </thead>
           <tbody>
             {orderData.map((order, index) => {
               return (
-                <tr key={order.id} className={`${(index + 2) % 2 == 0 ? "bg-[#171717]" : ""}`}>
+                <tr key={order.id} className={`${(index + 2) % 2 == 0 ? "bg-[#171717]" : ""} ${!isFetching ? "" : "hidden"}`}>
                   <td>
                     <input type="checkbox" className='checkbox' checked={deleteSelected[index].value} id={`checkbox-${index}`} onChange={() => handleCheckboxClick(index + 1)} />
                   </td>
@@ -371,7 +363,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
           </tbody>
         </table>
       </div>
-      <div className={`${dataTableHidden || dataTableFormShown ? "hidden" : null} text-center flex justify-center text-xl lg:text-5xl fixed bottom-10 right-20 rounded-lg border border-[#980b17] bg-[#e81123] hover:bg-[#980b17]`}>
+      <div className={`${dataTableHidden || dataTableFormShown || isFetching ? "hidden" : null} text-center flex justify-center text-xl lg:text-5xl fixed bottom-10 right-20 rounded-lg border border-[#980b17] bg-[#e81123] hover:bg-[#980b17]`}>
         <button
           type="button"
           className='flex items-center justify-center w-5 h-5 p-10'
@@ -384,9 +376,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
       </div>
       <div className={`${numOfSelected === 0 || dataTableHidden || dataTableFormShown ? "hidden" : ""} text-center flex justify-center text-lg lg:text-2xl fixed bottom-10 right-45`}>
         <button
-          onClick={() => { 
-            console.log("click")
-            requestDelete() }}
+          onClick={() => requestDelete()}
           className='w-30 h-20.5 items-center rounded-lg border border-[#980b17] bg-[#e81123] hover:bg-[#980b17]'>
           Delete
         </button>
@@ -466,7 +456,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
         const abortController = new AbortController();
         getOrders(abortController.signal);
       }} />
-      <div className={`flex text-3xl pt-5 gap-2 justify-center ${dataTableHidden || dataTableFormShown ? "hidden" : null}`}>
+      <div className={`flex text-3xl pt-5 gap-2 justify-center ${dataTableHidden || dataTableFormShown || isFetching ? "hidden" : null}`}>
         <button onClick={() => { setSelectedPage(page => page === 1 ? page : page - 1) }}>{"<"}</button>
         <p>{`${selectedPage}/${numberOfPages}`}</p>
         <button onClick={() => { setSelectedPage(page => page === numberOfPages ? page : page + 1) }}>{">"}</button>

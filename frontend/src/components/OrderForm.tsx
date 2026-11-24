@@ -31,6 +31,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
   const [price, setPrice] = useState<number>(0);
   const [createdAt, setCreatedAt] = useState<string>('');
   const [orderStatus, setOrderStatus] = useState<number>(0);
+  const [isHandover, setIsHandover] = useState<boolean>(false);
 
   const [submitting, setSubmitting] = useState<boolean>(false);
 
@@ -106,7 +107,8 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
           name: name,
           deadline: finalDeadline,
           totalPrice: price == undefined ? 0 : price,
-          quantityGroups: quantityGroups
+          quantityGroups: quantityGroups,
+          isHandover: isHandover
         }
 
         try {
@@ -137,7 +139,8 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
           totalPrice: price,
           quantityGroups: quantityGroups,
           createdAt: createdAt,
-          status: orderStatus
+          status: orderStatus,
+          isHandover: isHandover
         }
 
         try {
@@ -178,6 +181,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
             setOrderStatus(data.status);
             setDeadline(data.deadline.slice(0, 16));
             setPrice(data.totalPrice);
+            setIsHandover(data.isHandover);
           })
           .catch((err) => {
             alert(`Error occured: ${err}`)
@@ -208,6 +212,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
     setPrice(0);
     setCreatedAt('');
     setOrderStatus(0);
+    setIsHandover(false);
   }
 
   const setSize = (index: number, jndex: number, size: string) => {
@@ -288,6 +293,11 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
               <option value="4" className='dark-gray'>Reported</option>
               <option value="5" className='darker-gray'>Delivered</option>
             </select>
+          </div>
+
+          <div className="flex gap-1 items-center">
+            <h3>IsHandover?</h3>
+            <input type="checkbox" className="checkbox" checked={isHandover} onChange={() => setIsHandover(prev => !prev)}/>
           </div>
 
           <div>

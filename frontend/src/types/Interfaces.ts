@@ -5,7 +5,8 @@ export interface Order {
     createdAt: string,
     deadline: string,
     status: number,
-    totalPrice: number
+    totalPrice: number,
+    isHandover: boolean
 }
 
 export interface QuantityGroup{
@@ -24,7 +25,8 @@ export interface NewOrder{
     name: string,
     quantityGroups: NewQuantityGroup[],
     deadline: string,
-    totalPrice: number
+    totalPrice: number,
+    isHandover: boolean
 }
 
 export interface NewQuantityGroup{
@@ -43,7 +45,8 @@ export interface EditOrder{
     deadline: string,
     createdAt: string,
     totalPrice: number,
-    status: number
+    status: number,
+    isHandover: boolean
 }
 
 export interface EditQuantityGroup{
