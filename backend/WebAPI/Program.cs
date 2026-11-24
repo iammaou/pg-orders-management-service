@@ -148,7 +148,7 @@ try
 catch (Exception ex)
 {
     app.Logger.LogError(ex, "Database migration failed. Exiting so the container can restart.");
-    Environment.Exit(1);
+    throw;
 }
 
 app.UseAuthorization();

@@ -12,6 +12,7 @@ public class OrderDto
     public DateTime Deadline { get; set; }
     public decimal TotalPrice { get; set; }
     public OrderStatus Status { get; set; }
+    public bool IsHandover {get;set;}
 }
 
 public class OrderQuantityGroupDto

@@ -14,6 +14,8 @@ public class UpdateOrderDTO
     [Range(0, double.MaxValue, ErrorMessage = "Price musn't be a negative number!")]
     public decimal TotalPrice {get;set;}
     public OrderStatus Status {get;set;}
+    [Required]
+    public bool IsHandover {get;set;}
 }
 
 public class UpdateOrderQuantityGroupDTO

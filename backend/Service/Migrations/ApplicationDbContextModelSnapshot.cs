@@ -34,6 +34,9 @@ namespace Service.Migrations
                     b.Property<DateTime>("Deadline")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsHandover")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -46,6 +49,8 @@ namespace Service.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IsHandover");
 
                     b.HasIndex("Status");
 

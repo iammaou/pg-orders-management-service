@@ -17,6 +17,9 @@ public class CreateOrderDTO : IValidatableObject
     [Range(0, double.MaxValue, ErrorMessage = "Price musn't be a negative number!")]
     public decimal Price {get;set;}
 
+    [Required]
+    public bool IsHandover{get;set;}
+
     public IEnumerable<ValidationResult> Validate(ValidationContext context)
     {
         if (Deadline <= DateTime.UtcNow)

@@ -15,7 +15,8 @@ public static class OrderMapper
             Deadline = order.Deadline,
             TotalPrice = order.TotalPrice,
             Status = order.Status,
-            QuantityGroups = [.. order.QuantityGroups.Select(g => g.ToDto())]
+            QuantityGroups = [.. order.QuantityGroups.Select(g => g.ToDto())],
+            IsHandover = order.IsHandover
         };
     }
 
@@ -49,7 +50,8 @@ public static class OrderMapper
             Deadline = order.Deadline,
             TotalPrice = order.TotalPrice,
             Status = order.Status,
-            QuantityGroups = [.. order.QuantityGroups.Select(g => g.ToEntity())]
+            QuantityGroups = [.. order.QuantityGroups.Select(g => g.ToEntity())],
+            IsHandover = order.IsHandover
         };
     }
 
@@ -81,7 +83,8 @@ public static class OrderMapper
         CreatedAt = DateTime.UtcNow,
         Status = OrderStatus.Created,
         TotalPrice = dto.Price,
-        QuantityGroups = [.. dto.QuantityGroups.Select(g => g.ToEntity())]
+        QuantityGroups = [.. dto.QuantityGroups.Select(g => g.ToEntity())],
+        IsHandover = dto.IsHandover
     };  
 
     public static OrderQuantityGroup ToEntity(this CreateOrderQuantityGroupDto dto) => new()

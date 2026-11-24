@@ -13,6 +13,7 @@ public class OrderQueryParameters
 
     public OrderStatus? Status {get;set;}
     public bool IsDescending {get;set;}
+    public bool IsHandover {get;set;}
 
     private string? _sortBy;
     public string? SortBy

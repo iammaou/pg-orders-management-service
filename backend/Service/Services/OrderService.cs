@@ -23,6 +23,11 @@ public class OrderService(ApplicationDbContext dbContext) : IOrderService
         IQueryable<Order> ordersQuery = dbContext.Orders.AsNoTracking().Include(order => order.QuantityGroups)
                 .ThenInclude(group => group.Quantities);
 
+        if(query.IsHandover == true)
+        {
+          ordersQuery = ordersQuery.Where(p => p.IsHandover == true);
+        }
+
         if (query.Status.HasValue)
         {
             ordersQuery = ordersQuery.Where(p => p.Status == query.Status.Value);
@@ -113,6 +118,7 @@ public class OrderService(ApplicationDbContext dbContext) : IOrderService
         order.Deadline = updatedOrder.Deadline;
         order.Status = updatedOrder.Status;
         order.TotalPrice = updatedOrder.TotalPrice;
+        order.IsHandover = updatedOrder.IsHandover;
 
         SyncGroups(order, updatedOrder.QuantityGroups);
 

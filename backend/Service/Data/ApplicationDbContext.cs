@@ -13,7 +13,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         {
             entity.HasIndex(order => order.Status);
             entity.Property(o => o.TotalPrice).HasPrecision(18, 2); 
-        }); 
+          entity.HasIndex(order => order.IsHandover);
+        });
 
         modelBuilder.Entity<Order>(entity =>
         {
