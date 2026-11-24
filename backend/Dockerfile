@@ -19,6 +19,10 @@ RUN dotnet publish WebAPI/WebAPI.csproj -c Release -o /app/publish /p:UseAppHost
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+USER $APP_UID
+
 COPY --from=build /app/publish .
 
 ENV ASPNETCORE_URLS=http://+:8080

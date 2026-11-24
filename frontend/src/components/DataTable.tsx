@@ -125,22 +125,6 @@ export const DataTable = ({ onApiKeyReset }: props) => {
   }
 
   const handleCheckboxClick = (index?: number) => {
-    // var copyDeleteSelected: deleteArray[] = [...deleteSelected];
-
-    // if (index) {
-    //   copyDeleteSelected[index - 1].value = !copyDeleteSelected[index - 1].value;
-    // } else if (!index && numOfSelected === copyDeleteSelected.length) {
-    //   copyDeleteSelected.forEach(order => {
-    //     order.value = false;
-    //   })
-    // } else {
-    //   copyDeleteSelected.forEach(order => {
-    //     order.value = true;
-    //   })
-    // }
-
-    // setDeleteSelected(copyDeleteSelected);
-
     if(index === undefined) {
       const allSelected = numOfSelected === deleteSelected.length && deleteSelected.length >0;
 
