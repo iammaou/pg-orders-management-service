@@ -71,11 +71,13 @@ export const DataTable = ({ onApiKeyReset }: props) => {
   const [numOfSelected, setNumOfSelected] = useState<number>(0);
   const [filterPopUpVisible, setFilterPopUpVisible] = useState<boolean>(false);
   const filterRef = useClickOutside<HTMLTableCellElement>(() => setFilterPopUpVisible(false));
+  const [viewHistory, setViewHistory] = useState<boolean>(false);
 
   async function getOrders(signal?: AbortSignal) {
+    console.log(viewHistory)
     if (!isFetching) {
       setIsFetching(true);
-      await apiFetch(`?Page=${selectedPage}&PageSize=${pageSize}&SortBy=${sortBy}&IsDescending=${descending}${statusFilter === "null" ? "" : "&Status=" + statusFilter}&isHandover=${filterIsHandover}`, { method: 'GET', signal }).then((res) => {
+      await apiFetch(`?Page=${selectedPage}&PageSize=${pageSize}&SortBy=${sortBy}&IsDescending=${descending}${statusFilter === "null" ? "" : "&Status=" + statusFilter}&isHandover=${filterIsHandover}`, { method: 'GET', signal }, viewHistory).then((res) => {
         if (res.status === 401) {
           onApiKeyReset();
           return;
@@ -158,7 +160,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
   useEffect(() => {
     const abortController = new AbortController();
     getOrders(abortController.signal);
-  }, [selectedPage, descending, sortBy, statusFilter, filterIsHandover]);
+  }, [selectedPage, descending, sortBy, statusFilter, filterIsHandover, viewHistory]);
 
   useEffect(() => {
     setSelectedPage(1);
@@ -205,7 +207,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
             isHandover: order.isHandover
           }
 
-          await apiFetch(order.id, { method: "PUT", body: JSON.stringify(payload) }).then((res) => {
+          await apiFetch(order.id, { method: "PUT", body: JSON.stringify(payload) }, viewHistory).then((res) => {
             if (!res.ok) {
               throw new Error(`Order update failed: ${res.status}`)
             }
@@ -405,6 +407,12 @@ export const DataTable = ({ onApiKeyReset }: props) => {
           className='w-30 h-20.5 items-center rounded-lg border border-[#980b17] bg-[#e81123] hover:bg-[#980b17]'>
           Delete
         </button>
+      </div>
+      <div className='text-center flex justify-center text-lg lg:text-2xl fixed bottom-10 left-20'>
+        <button
+          className={`w-30 h-20.5 items-center rounded-lg border ${viewHistory ? "border-white bg-[#1f1f1f] hover:bg-white hover:text-[#1f1f1f]" : "border-[#980b17] bg-[#e81123] hover:bg-[#980b17]"}`}
+          onClick={() => setViewHistory(prev => !prev)}
+        >History</button>
       </div>
       {
         (dataTableHidden && isMobile && selectedOrder.id !== '') ?
