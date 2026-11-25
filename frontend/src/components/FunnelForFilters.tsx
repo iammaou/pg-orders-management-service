@@ -4,18 +4,19 @@ import { OrderStatusMap } from "./DataTable"
 interface props {
   setStatusFilter: (status: "Created" | "Ordered" | "Arrived" | "Finished" | "ReportedAsFinished" | "Delivered" | "null") => void,
   filterIsHandover: boolean,
-  toggleFilterIsHandover: () => void
+  showingHistory:boolean,
+  toggleFilterIsHandover: () => void,
 }
 
-function FunnelForFilters({setStatusFilter, filterIsHandover, toggleFilterIsHandover}: props) {
+function FunnelForFilters({setStatusFilter, filterIsHandover, toggleFilterIsHandover, showingHistory}: props) {
   return (
-    <div className="absolute lg:w-550 sm:w-400 lg:h-27 sm:h-24 flex justify-end top-22 lg:-right-20 sm:right-4 text-xl md:text-lg lg:text-3xl">
+    <div className={`absolute lg:w-550 sm:w-400 lg:h-27 sm:h-24 flex justify-end top-22 lg:-right-20 sm:right-4 text-xl md:text-lg lg:text-3xl`}>
       <div className="bg-[#1f1f1f] white-border w-1/8 flex flex-col gap-1">
         <div className="flex gap-1 justify-center items-center">
           <h1>Handover?</h1>
           <input type="checkbox" className="checkbox" checked={filterIsHandover} onChange={toggleFilterIsHandover}/>
         </div>
-        <div>
+        <div className={`${showingHistory ? "hidden" : ""}`}>
           <select name="filter" id="filter" onChange={(e) => {
             const newStatus = Number(e.target.value);
             switch (newStatus) {

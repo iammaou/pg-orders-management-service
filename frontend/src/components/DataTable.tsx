@@ -326,7 +326,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
               <th className='w-10' ref={filterRef}>
                 <button className='button-size border-white border hover:bg-white hover:text-[#1f1f1f]' onClick={() => setFilterPopUpVisible(prev => !prev)}>Filter</button>
                 <div className={filterPopUpVisible ? "" : "hidden"}>
-                  <FunnelForFilters setStatusFilter={(status:"Created" | "Ordered" | "Arrived" | "Finished" | "ReportedAsFinished" | "Delivered" | "null") => setStatusFilter(status)} filterIsHandover={filterIsHandover} toggleFilterIsHandover={() => setFilterIsHandover(prev => !prev)}/>
+                  <FunnelForFilters setStatusFilter={(status:"Created" | "Ordered" | "Arrived" | "Finished" | "ReportedAsFinished" | "Delivered" | "null") => setStatusFilter(status)} filterIsHandover={filterIsHandover} toggleFilterIsHandover={() => setFilterIsHandover(prev => !prev)} showingHistory={viewHistory}/>
                 </div>
               </th>
             </tr>
@@ -366,8 +366,12 @@ export const DataTable = ({ onApiKeyReset }: props) => {
 
                   {
                     !isMobile ?
+                      !viewHistory ?
                       <td>
                         {statusSelect(index, order)}
+                      </td> :
+                      <td>
+                        Deleted
                       </td>
                       : null
                   }
@@ -375,7 +379,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                     !isMobile && !isTablet ? <td>{`€${order.totalPrice}`}</td> : null
                   }
                   <td className='w-1/3 md:w-1/6 lg:w-1/20'>
-                    <div className='flex gap-1 justify-center'>
+                    <div className={`flex gap-1 justify-center ${viewHistory ? "hidden" : ""}`}>
                       {
                         isMobile ? <button className='button-size border border-white hover:bg-white hover:text-[#1f1f1f]' onClick={() => { handleOnViewMore(index) }}>View More</button> : null
                       }
@@ -390,10 +394,10 @@ export const DataTable = ({ onApiKeyReset }: props) => {
           </tbody>
         </table>
       </div>
-      <div className={`${dataTableHidden || dataTableFormShown || isFetching ? "hidden" : null} text-center flex justify-center text-xl lg:text-5xl fixed bottom-10 right-20 rounded-lg border border-[#980b17] bg-[#e81123] hover:bg-[#980b17]`}>
+      <div className={`${dataTableHidden || dataTableFormShown || isFetching || viewHistory ? "hidden" : null} text-center flex justify-center text-xl lg:text-5xl fixed bottom-10 right-20 rounded-lg border border-[#980b17] bg-[#e81123] hover:bg-[#980b17]`}>
         <button
           type="button"
-          className='flex items-center justify-center w-5 h-5 p-10'
+          className={`flex items-center justify-center w-5 h-5 p-10`}
           onClick={() => {
             handleOrderForm("POST");
           }}
@@ -401,10 +405,10 @@ export const DataTable = ({ onApiKeyReset }: props) => {
           +
         </button>
       </div>
-      <div className={`${numOfSelected === 0 || dataTableHidden || dataTableFormShown ? "hidden" : ""} text-center flex justify-center text-lg lg:text-2xl fixed bottom-10 right-45`}>
+      <div className={`${numOfSelected === 0 || dataTableHidden || dataTableFormShown ? "hidden" : ""} text-center flex justify-center text-lg lg:text-2xl fixed bottom-10 ${viewHistory ? "right-20" : "right-45"}`}>
         <button
           onClick={() => requestDelete()}
-          className='w-30 h-20.5 items-center rounded-lg border border-[#980b17] bg-[#e81123] hover:bg-[#980b17]'>
+          className={`w-30 h-20.5 items-center rounded-lg border border-[#980b17] bg-[#e81123] hover:bg-[#980b17]`}>
           Delete
         </button>
       </div>

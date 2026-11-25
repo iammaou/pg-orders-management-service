@@ -28,7 +28,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
     ]);
   const [name, setName] = useState<string>('');
   const [deadline, setDeadline] = useState<string>('');
-  const [price, setPrice] = useState<number>(0);
+  const [price, setPrice] = useState<string>('');
   const [createdAt, setCreatedAt] = useState<string>('');
   const [orderStatus, setOrderStatus] = useState<number>(0);
   const [isHandover, setIsHandover] = useState<boolean>(false);
@@ -106,7 +106,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
         const payload: NewOrder = {
           name: name,
           deadline: finalDeadline,
-          totalPrice: price == undefined ? 0 : price,
+          totalPrice: price == undefined ? 0 : Number(price),
           quantityGroups: quantityGroups,
           isHandover: isHandover
         }
@@ -136,7 +136,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
         const payload: EditOrder = {
           name: name,
           deadline: deadline,
-          totalPrice: price,
+          totalPrice: Number(price),
           quantityGroups: quantityGroups,
           createdAt: createdAt,
           status: orderStatus,
@@ -209,7 +209,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
 
     setName('');
     setDeadline('');
-    setPrice(0);
+    setPrice('');
     setCreatedAt('');
     setOrderStatus(0);
     setIsHandover(false);
@@ -274,7 +274,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
 
           <div className="flex gap-1 items-center">
             <label htmlFor="Price" className={postOrPut == "PUT" ? "" : "hidden"}>Price:</label>
-            <input autoComplete='off' id="Price" type="number" value={price} onChange={((e) => { setPrice(Number(e.target.value)) })} className={`${postOrPut == "PUT" ? "" : "hidden"} white-border p-1 w-1/3 lg:w-1/6`} />
+            <input autoComplete='off' id="Price" type="number" value={price} onChange={((e) => { setPrice(e.target.value) })} className={`${postOrPut == "PUT" ? "" : "hidden"} white-border p-1 w-1/3 lg:w-1/6`} />
           </div>
 
           <div className="flex gap-1 items-center">
