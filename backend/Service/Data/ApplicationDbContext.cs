@@ -35,4 +35,5 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     }
 
     public DbSet<Order> Orders {get;set;}
+    public DbSet<Order> OrderHistory {get;set;}
 }

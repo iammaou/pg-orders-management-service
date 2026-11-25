@@ -75,7 +75,7 @@ public class OrderService(ApplicationDbContext dbContext) : IOrderService
     {
         Order newOrder = order.ToEntity();
 
-        dbContext.Add(newOrder);
+        dbContext.Orders.Add(newOrder);
         await dbContext.SaveChangesAsync();
 
         return newOrder.ToDto();
