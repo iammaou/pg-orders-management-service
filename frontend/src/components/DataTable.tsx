@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, type RefObject } from 'react'
 import { OrderForm } from './OrderForm';
 import { type EditOrder, type Order } from '../types/Interfaces'
 import "../App.css"
@@ -70,6 +70,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
   const [deleteSelected, setDeleteSelected] = useState<deleteArray[]>([]);
   const [numOfSelected, setNumOfSelected] = useState<number>(0);
   const [filterPopUpVisible, setFilterPopUpVisible] = useState<boolean>(false);
+  const filterRef = useClickOutside<HTMLTableCellElement>(() => setFilterPopUpVisible(false));
 
   async function getOrders(signal?: AbortSignal) {
     if (!isFetching) {
@@ -232,6 +233,30 @@ export const DataTable = ({ onApiKeyReset }: props) => {
     return <div className='h-px w-full bg-white my-2'></div>;
   }
 
+  function useClickOutside<T extends HTMLElement = HTMLElement>(callback: (event:MouseEvent | TouchEvent) => void
+  ): RefObject<T | null> {
+    const ref = useRef<T>(null);
+
+    useEffect(() => {
+      function handleClick(event: MouseEvent | TouchEvent){
+        const target = event.target as Node;
+        if(ref.current && !ref.current.contains(target)){
+          callback(event);
+        }
+      }
+
+      document.addEventListener('mousedown', handleClick);
+      document.addEventListener('touchstart', handleClick);
+
+      return () => {
+        document.removeEventListener('mousedown', handleClick);
+        document.removeEventListener('touchstart', handleClick);
+      };
+    }, [callback]);
+
+    return ref;
+  }
+
   return (
     <div className={`${Cookies.get('x-api-key') == undefined ? "hidden" : ""} relative w-full lg:w-5/6 text-white pt-5 mx-auto`}>
       <div className={`${dataTableHidden || dataTableFormShown ? "blur-sm pointer-events-none z-0" : ""} white-border p-1 `}>
@@ -296,7 +321,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
               {
                 !isMobile && !isTablet ? <th>Price</th> : null
               }
-              <th className='w-10'>
+              <th className='w-10' ref={filterRef}>
                 <button className='button-size border-white border hover:bg-white hover:text-[#1f1f1f]' onClick={() => setFilterPopUpVisible(prev => !prev)}>Filter</button>
                 <div className={filterPopUpVisible ? "" : "hidden"}>
                   <FunnelForFilters setStatusFilter={(status:"Created" | "Ordered" | "Arrived" | "Finished" | "ReportedAsFinished" | "Delivered" | "null") => setStatusFilter(status)} filterIsHandover={filterIsHandover} toggleFilterIsHandover={() => setFilterIsHandover(prev => !prev)}/>
