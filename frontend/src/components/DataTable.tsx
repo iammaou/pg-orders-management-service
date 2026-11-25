@@ -469,7 +469,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
       }} onSuccessPUT={(data: Order) => {
         setOrderData(prev => prev.map(order => order.id === data.id ? data : order));
       }} />
-      <ConfirmDelete orderQue={deleteOrderQue} deleteWindowVisible={deleteWindowVisible} onClose={() => {
+      <ConfirmDelete orderQue={deleteOrderQue} viewHistory={viewHistory} deleteWindowVisible={deleteWindowVisible} onClose={() => {
         setDeleteOrderQue([]);
         setDeleteWindowVisible(false);
         setDataTableHidden(false);

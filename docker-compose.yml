@@ -50,6 +50,8 @@ services:
       dockerfile: Dockerfile
       args:
         VITE_API_BASE_URL: /api/Order
+        VITE_API_HISTORY_URL: /api/OrderHistory
+        
     ports:
       - "8081:80"
     depends_on:

@@ -12,7 +12,7 @@ using Service.Data;
 namespace Service.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261006050940_InitialCreate")]
+    [Migration("20261125164358_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -37,6 +37,14 @@ namespace Service.Migrations
                     b.Property<DateTime>("Deadline")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
+
+                    b.Property<bool>("IsHandover")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -45,11 +53,20 @@ namespace Service.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("TotalPrice")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IsHandover");
+
+                    b.HasIndex("Status");
+
                     b.ToTable("Orders");
+
+                    b.HasDiscriminator().HasValue("Order");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Service.Entities.OrderQuantity", b =>
@@ -99,18 +116,27 @@ namespace Service.Migrations
                     b.ToTable("OrderQuantityGroup");
                 });
 
+            modelBuilder.Entity("Service.Entities.OrderHistory", b =>
+                {
+                    b.HasBaseType("Service.Entities.Order");
+
+                    b.HasDiscriminator().HasValue("OrderHistory");
+                });
+
             modelBuilder.Entity("Service.Entities.OrderQuantity", b =>
                 {
                     b.HasOne("Service.Entities.OrderQuantityGroup", null)
                         .WithMany("Quantities")
-                        .HasForeignKey("OrderQuantityGroupId");
+                        .HasForeignKey("OrderQuantityGroupId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Service.Entities.OrderQuantityGroup", b =>
                 {
                     b.HasOne("Service.Entities.Order", null)
                         .WithMany("QuantityGroups")
-                        .HasForeignKey("OrderId");
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Service.Entities.Order", b =>

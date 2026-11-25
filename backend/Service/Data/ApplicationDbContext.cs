@@ -11,15 +11,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasIndex(order => order.Status);
-            entity.Property(o => o.TotalPrice).HasPrecision(18, 2); 
-          entity.HasIndex(order => order.IsHandover);
-        });
-
-        modelBuilder.Entity<Order>(entity =>
-        {
             entity.HasIndex(o => o.Status);
             entity.Property(o => o.TotalPrice).HasPrecision(18, 2);
+            entity.HasIndex(o => o.IsHandover);
 
             entity.HasMany(o => o.QuantityGroups)
                 .WithOne()
@@ -32,8 +26,28 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .WithOne()
                 .OnDelete(DeleteBehavior.Cascade);
         });
+
+        modelBuilder.Entity<OrderHistory>(entity =>
+        {
+            entity.Property(o => o.TotalPrice).HasPrecision(18, 2);
+
+            entity.HasMany(o => o.QuantityGroups)
+                .WithOne()
+                .HasForeignKey("OrderHistoryId")
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<OrderHistoryQuantityGroup>(entity =>
+        {
+            entity.HasMany(g => g.Quantities)
+                .WithOne()
+                .HasForeignKey("OrderHistoryQuantityGroupId")
+                .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 
     public DbSet<Order> Orders {get;set;}
-    public DbSet<Order> OrderHistory {get;set;}
+    public DbSet<OrderHistory> OrderHistory {get;set;}
+    public DbSet<OrderHistoryQuantityGroup> OrderHistoryQuantityGroups { get; set; }
+    public DbSet<OrderHistoryQuantity> OrderHistoryQuantities { get; set; }
 }

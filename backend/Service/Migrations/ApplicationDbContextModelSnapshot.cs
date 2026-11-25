@@ -57,6 +57,84 @@ namespace Service.Migrations
                     b.ToTable("Orders");
                 });
 
+            modelBuilder.Entity("Service.Entities.OrderHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Deadline")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsHandover")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OrderHistory");
+                });
+
+            modelBuilder.Entity("Service.Entities.OrderHistoryQuantity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("OrderHistoryQuantityGroupId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Size")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderHistoryQuantityGroupId");
+
+                    b.ToTable("OrderHistoryQuantities");
+                });
+
+            modelBuilder.Entity("Service.Entities.OrderHistoryQuantityGroup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("GroupKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("OrderHistoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderHistoryId");
+
+                    b.ToTable("OrderHistoryQuantityGroups");
+                });
+
             modelBuilder.Entity("Service.Entities.OrderQuantity", b =>
                 {
                     b.Property<int>("Id")
@@ -104,6 +182,22 @@ namespace Service.Migrations
                     b.ToTable("OrderQuantityGroup");
                 });
 
+            modelBuilder.Entity("Service.Entities.OrderHistoryQuantity", b =>
+                {
+                    b.HasOne("Service.Entities.OrderHistoryQuantityGroup", null)
+                        .WithMany("Quantities")
+                        .HasForeignKey("OrderHistoryQuantityGroupId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Service.Entities.OrderHistoryQuantityGroup", b =>
+                {
+                    b.HasOne("Service.Entities.OrderHistory", null)
+                        .WithMany("QuantityGroups")
+                        .HasForeignKey("OrderHistoryId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("Service.Entities.OrderQuantity", b =>
                 {
                     b.HasOne("Service.Entities.OrderQuantityGroup", null)
@@ -123,6 +217,16 @@ namespace Service.Migrations
             modelBuilder.Entity("Service.Entities.Order", b =>
                 {
                     b.Navigation("QuantityGroups");
+                });
+
+            modelBuilder.Entity("Service.Entities.OrderHistory", b =>
+                {
+                    b.Navigation("QuantityGroups");
+                });
+
+            modelBuilder.Entity("Service.Entities.OrderHistoryQuantityGroup", b =>
+                {
+                    b.Navigation("Quantities");
                 });
 
             modelBuilder.Entity("Service.Entities.OrderQuantityGroup", b =>

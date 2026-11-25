@@ -36,7 +36,7 @@ export const ApiKeyForm = ({ onSuccess }: props) => {
           <button
             onClick={async () => {
               if (apiKeyInput.trim() !== '') {
-                await apiFetch("", {headers: {'x-api-key': apiKeyInput.trim()}}).then((res) => {
+                await apiFetch("", {headers: {'x-api-key': apiKeyInput.trim()}}, false).then((res) => {
                   if (!res.ok) {
                     switch (res.status) {
                       case 401:

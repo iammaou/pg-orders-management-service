@@ -7,21 +7,23 @@ interface props {
   orderQue: deleteArray[],
   deleteWindowVisible: boolean,
   onClose: () => void,
-  onDelete: (id:string) => void
+  onDelete: (id:string) => void,
+  viewHistory: boolean
 }
 
-const deleteOrder = async (id: string): Promise<boolean> => {
-  const res = await apiFetch(id, { method: 'DELETE' });
 
-  if (!res.ok) {
-    alert(`Delete Failed: ${res.status}`);
-    return false;
-  } else {
-    return true;
+function ConfirmDelete({ deleteWindowVisible, orderQue, onClose, onDelete, viewHistory }: props) {
+  const deleteOrder = async (id: string): Promise<boolean> => {
+    const res = await apiFetch(id, { method: 'DELETE' }, viewHistory);
+  
+    if (!res.ok) {
+      alert(`Delete Failed: ${res.status}`);
+      return false;
+    } else {
+      return true;
+    }
   }
-}
 
-function ConfirmDelete({ deleteWindowVisible, orderQue, onClose, onDelete }: props) {
   const onYes = async () => {
     orderQue.forEach(async order => {
       if (order.id !== '' && order.value === true && !processing) {

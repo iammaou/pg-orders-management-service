@@ -23,14 +23,6 @@ namespace WebAPI.Controllers
             return order == null ? NotFound() : Ok(order);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<OrderDto>> CreateNewOrderInHistory(CreateOrderDTO order, CancellationToken cancellationToken)
-        {
-            var newOrder = await orderHistoryService.CreateNewOrderInHistoryAsync(order);
-
-            return CreatedAtAction(nameof(GetOrderFromHistory), new {id = newOrder.Id}, newOrder);
-        }
-
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult> DeleteOrderFromHistory(Guid id, CancellationToken cancellationToken)
         {

@@ -85,7 +85,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
   }
 
   async function sendData(payload: NewOrder, postOrPut: "POST" | "PUT", id?: string) {
-    return await apiFetch(!id ? "" : id, { method: postOrPut.toUpperCase(), body: JSON.stringify(payload) });
+    return await apiFetch(!id ? "" : id, { method: postOrPut.toUpperCase(), body: JSON.stringify(payload) }, false);
   }
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
@@ -167,7 +167,7 @@ export const OrderForm = ({ dataTableFormShown, postOrPut, selectedId, setSelect
   useEffect(() => {
     if (postOrPut == "PUT" && selectedId) {
       async function getData(id: string) {
-        await apiFetch(id, { method: 'GET' }).then(res => {
+        await apiFetch(id, { method: 'GET' }, false).then(res => {
           if (!res.ok) {
             throw new Error(`GET failed: ${res.status}`)
           }

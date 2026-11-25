@@ -17,7 +17,6 @@ public interface IOrderService
 
 public class OrderService(ApplicationDbContext dbContext) : IOrderService
 {
-
     public async Task<PagedResult<OrderDto>> GetAllOrdersAsync(OrderQueryParameters query)
     {
         IQueryable<Order> ordersQuery = dbContext.Orders.AsNoTracking().Include(order => order.QuantityGroups)
@@ -83,25 +82,22 @@ public class OrderService(ApplicationDbContext dbContext) : IOrderService
 
     public async Task<bool> DeleteOrderAsync(Guid id)
     {
-        var order = await dbContext.Orders
-            .Include(order => order.QuantityGroups)
-                .ThenInclude(group => group.Quantities)
-            .FirstOrDefaultAsync(order => order.Id == id);
-        
-        if (order == null) return false;
+        var orderForHistory = await dbContext.Orders
+        .AsNoTracking()
+        .Include(o => o.QuantityGroups)
+            .ThenInclude(g => g.Quantities)
+        .FirstOrDefaultAsync(o => o.Id == id);
+    
+        if (orderForHistory == null) return false;
 
-        foreach (var quantityGroup in order.QuantityGroups)
-        {
-            foreach (var quantity in quantityGroup.Quantities)
-            {
-                dbContext.Remove(quantity);
-            }
-            dbContext.Remove(quantityGroup);
-        }
+        var history = orderForHistory.ToOrderHistory();
 
-        dbContext.Remove(order);
+        dbContext.OrderHistory.Add(history);
+
+        var orderToDelete = new Order { Id = id, Name = "" };
+        dbContext.Orders.Remove(orderToDelete);
+
         await dbContext.SaveChangesAsync();
-
         return true;
     }
 

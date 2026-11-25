@@ -98,4 +98,4 @@ public static class OrderMapper
         Size = dto.Size,
         Quantity = dto.Quantity
     };
-    }
+}
