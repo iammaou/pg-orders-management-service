@@ -166,14 +166,22 @@ export const DataTable = ({ onApiKeyReset }: props) => {
     setSelectedPage(1);
   }, [descending, sortBy, statusFilter]);
 
+  
   function useBreakpoint() {
     const isMobile = useMediaQuery({ query: '(max-width: 640px)' });
     const isTablet = useMediaQuery({ query: '(max-width: 1024px)' });
-
+    
     return { isMobile, isTablet };
   }
-
+  
   const { isMobile, isTablet } = useBreakpoint();
+  
+  useEffect(() => {
+    if(dataTableHidden && !isMobile && selectedOrder.id !== ''){
+      setSelectedOrder(emptyOrder);
+      setDataTableHidden(false);
+    }
+  }, [isMobile])
 
   const handleSortChange = (newlySelected: "createdAt" | "deadline") => {
     if (sortBy === newlySelected) {
@@ -190,6 +198,10 @@ export const DataTable = ({ onApiKeyReset }: props) => {
       setSelectedOrder(orderData[index]);
     }
   }
+
+  useEffect(() => {
+    console.log(isMobile, viewHistory)
+  }, [isMobile, viewHistory])
 
   const statusSelect = (index: number, order: Order) => {
     return <select className='white' name="statusSelect" id={`statusSelect-${index}`} value={order.status} onChange={
@@ -302,16 +314,20 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                   </th>
                   : null
               }
-              <th>
-                <div className='flex justify-center gap-2'>
-                  <button onClick={() => { handleSortChange("deadline") }}>
-                    Deadline
-                  </button>
-                  <p className={`${sortBy === "deadline" ? "" : "hidden"} ${descending ? "rotate-180" : ""}`}>{"⏷"}
-                  </p>
+              {
+                !isMobile ?
+                <th>
+                  <div className='flex justify-center gap-2'>
+                    <button onClick={() => { handleSortChange("deadline") }}>
+                      Deadline
+                    </button>
+                    <p className={`${sortBy === "deadline" ? "" : "hidden"} ${descending ? "rotate-180" : ""}`}>{"⏷"}
+                    </p>
 
-                </div>
-              </th>
+                  </div>
+                </th>
+                : null
+              }
               {
                 !isMobile ?
                   <th>
@@ -323,10 +339,10 @@ export const DataTable = ({ onApiKeyReset }: props) => {
               {
                 !isMobile && !isTablet ? <th>Price</th> : null
               }
-              <th className='w-10' ref={filterRef}>
+              <th className={`w-10`} ref={filterRef}>
                 <button className='button-size border-white border hover:bg-white hover:text-[#1f1f1f]' onClick={() => setFilterPopUpVisible(prev => !prev)}>Filter</button>
                 <div className={filterPopUpVisible ? "" : "hidden"}>
-                  <FunnelForFilters setStatusFilter={(status:"Created" | "Ordered" | "Arrived" | "Finished" | "ReportedAsFinished" | "Delivered" | "null") => setStatusFilter(status)} filterIsHandover={filterIsHandover} toggleFilterIsHandover={() => setFilterIsHandover(prev => !prev)} showingHistory={viewHistory}/>
+                  <FunnelForFilters setStatusFilter={(status:"Created" | "Ordered" | "Arrived" | "Finished" | "ReportedAsFinished" | "Delivered" | "null") => setStatusFilter(status)} filterIsHandover={filterIsHandover} toggleFilterIsHandover={() => setFilterIsHandover(prev => !prev)} showingHistory={viewHistory} isMobile={isMobile} isTablet={isTablet}/>
                 </div>
               </th>
             </tr>
@@ -362,7 +378,9 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                   {
                     !isMobile && !isTablet ? <td>{new Date(order.createdAt).toLocaleDateString("en-GB")}</td> : null
                   }
-                  <td>{new Date(order.deadline).toLocaleDateString("en-GB")}</td>
+                  {
+                    !isMobile ? <td>{new Date(order.deadline).toLocaleDateString("en-GB")}</td> : null
+                  }
 
                   {
                     !isMobile ?
@@ -379,11 +397,11 @@ export const DataTable = ({ onApiKeyReset }: props) => {
                     !isMobile && !isTablet ? <td>{`€${order.totalPrice}`}</td> : null
                   }
                   <td className='w-1/3 md:w-1/6 lg:w-1/20'>
-                    <div className={`flex gap-1 justify-center ${viewHistory ? "hidden" : ""}`}>
+                    <div className={`flex gap-1 justify-center`}>
                       {
                         isMobile ? <button className='button-size border border-white hover:bg-white hover:text-[#1f1f1f]' onClick={() => { handleOnViewMore(index) }}>View More</button> : null
                       }
-                      <button className='button-size border-white border hover:bg-white hover:text-[#1f1f1f]' onClick={() => handleOrderForm("PUT", order.id)}>
+                      <button className={`button-size border-white border hover:bg-white hover:text-[#1f1f1f] ${viewHistory ? "hidden" : null}`} onClick={() => handleOrderForm("PUT", order.id)}>
                         Edit
                       </button>
                     </div>
@@ -394,7 +412,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
           </tbody>
         </table>
       </div>
-      <div className={`${dataTableHidden || dataTableFormShown || isFetching || viewHistory ? "hidden" : null} text-center flex justify-center text-xl lg:text-5xl fixed bottom-10 right-20 rounded-lg border border-[#980b17] bg-[#e81123] hover:bg-[#980b17]`}>
+      <div className={`${dataTableHidden || dataTableFormShown || isFetching || viewHistory ? "hidden" : null} text-center flex justify-center text-xl lg:text-5xl fixed ${isMobile ? "bottom-2.5 right-5" : "bottom-10 right-20"} rounded-lg border border-[#980b17] bg-[#e81123] hover:bg-[#980b17]`}>
         <button
           type="button"
           className={`flex items-center justify-center w-5 h-5 p-10`}
@@ -405,14 +423,14 @@ export const DataTable = ({ onApiKeyReset }: props) => {
           +
         </button>
       </div>
-      <div className={`${numOfSelected === 0 || dataTableHidden || dataTableFormShown ? "hidden" : ""} text-center flex justify-center text-lg lg:text-2xl fixed bottom-10 ${viewHistory ? "right-20" : "right-45"}`}>
+      <div className={`${numOfSelected === 0 || dataTableHidden || dataTableFormShown ? "hidden" : ""} text-center flex justify-center text-lg lg:text-2xl fixed  ${isMobile ? viewHistory ? "right-5 bottom-2.5" : "right-5 bottom-25" : "bottom-10"}`}>
         <button
           onClick={() => requestDelete()}
           className={`w-30 h-20.5 items-center rounded-lg border border-[#980b17] bg-[#e81123] hover:bg-[#980b17]`}>
           Delete
         </button>
       </div>
-      <div className='text-center flex justify-center text-lg lg:text-2xl fixed bottom-10 left-20'>
+      <div className={`text-center flex justify-center text-lg lg:text-2xl fixed  ${isMobile ? "bottom-2.5 left-5" : "bottom-10 left-20"}`}>
         <button
           className={`w-30 h-20.5 items-center rounded-lg border ${viewHistory ? "border-white bg-[#1f1f1f] hover:bg-white hover:text-[#1f1f1f]" : "border-[#980b17] bg-[#e81123] hover:bg-[#980b17]"}`}
           onClick={() => setViewHistory(prev => !prev)}
@@ -452,7 +470,7 @@ export const DataTable = ({ onApiKeyReset }: props) => {
               <h3>{`Created At: ${new Date(selectedOrder.createdAt).toLocaleDateString("en-GB")}`}</h3>
               <h3>{`Deadline At: ${new Date(selectedOrder.deadline).toLocaleDateString("en-GB")}`}</h3>
               <h3>{`Price: €${selectedOrder.totalPrice}`}</h3>
-              {statusSelect(0, selectedOrder)}
+              <h3>Status: Deleted</h3>
             </div>
           </div>
           : null
